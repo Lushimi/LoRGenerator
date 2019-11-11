@@ -1,4 +1,3 @@
-
 import re
 import json
 from collections import defaultdict
@@ -43,17 +42,7 @@ class Deck:
             self.cardCostCount[card.cost] += 1
             if card.supertype == "Champion":
                 self.championCount += 1
-                
-    def removeCard(self, card, region = None):
-        if region == None:
-            region = self.region
-        if region == self.region or region == self.secondRegion:
-            self.deckData[region][card] -= 1
-            self.cardCount[region] -= 1
-            self.cardCostCount[card.cost] -=1
-            if card.supertype == "Champion":
-                self.championCount -= 1
-            
+        
     def __setattr__(self, name, value):
         calling = inspect.stack()[1]
         assert calling.function != '__init__' or calling.function != 'addCard', "Cannot set attributed directly, only can be intialized or done with addCard."
