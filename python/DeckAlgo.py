@@ -10,14 +10,12 @@ keywords = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain
 
 
 class Deck:
-    def __init__(self, region: str = None, secondRegion: str = None, *genres: "list of comparison statements that return bool"):
-        assert region == None or region in regions, "First region specified not found."
+    def __init__(self, region: str, secondRegion: str = None, *genres: "list of comparison statements that return bool"):
+        assert region in regions, "First region specified not found."
         assert secondRegion == None or secondRegion in regions, "Second region specified not found."
         self.genres = [i for i in genres]
         self.region = region
         self.secondRegion = secondRegion
-        if region == None:
-            self.region = random.choice(regions)
         
 #     deckData is a nested dict that is sructured as such:
 #     deckData
@@ -28,20 +26,19 @@ class Deck:
         self.deckData[self.region] = defaultdict(int)
         self.deckData[self.secondRegion] = defaultdict(int)
             
+        #dict that keeps track of card costs in the deck, and how many cards of a specific cost there are
         self.cardCostCount = defaultdict(int)
         self.maxCards = 40
         self.championCount = 0
+        #dict that keeps track of the regions and how many cards are in that region
         self.cardCount = defaultdict(int)
         
-    def addCard(self, card, region = None):
-        if region == None:
-            region = self.region
-        if region == self.region or region == self.secondRegion:            
-            self.deckData[region][card] += 1
-            self.cardCount[region] += 1
-            self.cardCostCount[card.cost] += 1
-            if card.supertype == "Champion":
-                self.championCount += 1
+    def addCard(self, card):       
+        self.deckData[card.region][card] += 1
+        self.cardCount[card.region] += 1
+        self.cardCostCount[card.cost] += 1
+        if card.supertype == "Champion":
+            self.championCount += 1
         
     def __setattr__(self, name, value):
         calling = inspect.stack()[1]
@@ -57,7 +54,7 @@ class Deck:
 
         
     def __repr__(self)-> str:
-        return str(self.__dict__)
+        return f"Deck({self.region}, {self.secondRegion}, {self.genres})"
 
     def __str__(self)-> str:
         rString = ""
@@ -122,15 +119,15 @@ class Card:
 
 
 def basicCheck(card, deck: Deck, region = None):
-    if region == None: region = deck.region
+    if region == None: region = random.choice( [deck.region, deck.secondRegion] )
     assert region in deck.deckData, "Region specified is not in deck."
     
     # No more than 6 champion cards
     if card.supertype == "Champion":
         if deck.championCount >= 6:
             return False   
-    # Card is in the correct region and isnt a subcard
-    if card.region == region and len(card.cardCode) <= 7:
+    # Card is in the correct region and is not a undeckable card
+    if card.region == region and card.collectible:
 #         Max of 40 cards in a deck
 #         Cards below 5 cost can only have a count of < 50% (cannot have 20 3-cost cards)
 #         Cards above 5 cost can only have a count of < 37.5% (cannot have 14 6-cost cards)
@@ -141,30 +138,48 @@ def basicCheck(card, deck: Deck, region = None):
 
 
 if __name__ == "__main__":
+    #create master deck of cards
     with open("set1-en_us.json", encoding ="utf8") as cardset:
         parsed = json.load(cardset)
         masterDeck = [Card(c) for c in parsed]
+        
+    #add cards to specific regions or randomly assigns regions if none are specified
+    def fillDeck(deck: Deck, regions: tuple = (None, None)):
+        while len(deck) < 40:
+            card = random.choice(masterDeck)
+            if basicCheck(card, deck, regions[0]):
+                deck.addCard(card)
+            if basicCheck(card, deck, regions[1]):
+                deck.addCard(card)
+        
+    #outputs a bunch of print statements to test deck
+    def testingScript(deck: Deck):
+        #tests str, repr, len, and return deck functions
+        print(repr(deck))
+        print()
+        print(deck)
+        print("Length: " + str(len(deck)))
+        print()
+        #prints a count of keywords embedded in the card descriptions
+        k = defaultdict(int)
+        for i in deck:
+            for j in i.descriptionKeywords:
+                k[j] += 1
+        print("Description Keywords: \n" + '\n'.join( [o + ": " + str(p) if len(k) != 0 else "None" for o,p in k.items()] ))
+        print()
+        print(deck.returnDeck())
+        rCode = LoRDeck(deck.returnDeck())
+        print(rCode.encode())
+        
+    #create a deck with specifications
+    print("\n\t\t/+/=====================================================[ Specific Test ]=====================================================\+\ \n")
     myDeck = Deck("Shadow Isles", "Ionia", (lambda x: x.cost < 5 ) )
-    randomDeck = Deck()
-    
-    for i in range(len(masterDeck) + 1):
-        card = random.choice(masterDeck)
-        if basicCheck(card, myDeck, "Ionia"):
-            myDeck.addCard(card, "Ionia")
-        if basicCheck(card, myDeck, "Shadow Isles"):
-            myDeck.addCard(card, "Shadow Isles")
-        if basicCheck(card, randomDeck):
-            randomDeck.addCard(card)
+    fillDeck(myDeck)
+    testingScript(myDeck)
+    print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
+    #create a deck with no specifications, filled in by randomness
+    randomDeck = Deck(random.choice(regions), random.choice(regions))
+    fillDeck(randomDeck)
+    testingScript(randomDeck)
 
-    print(randomDeck)
-    print(len(randomDeck))
-    rCode = LoRDeck(randomDeck.returnDeck())
-    print(rCode.encode())
     
-    print(myDeck)
-    print(repr(myDeck))
-    print(len(myDeck))
-    print(myDeck.returnDeck())
-    print( [i.descriptionKeywords for i in myDeck] )
-    deckCode = LoRDeck(myDeck.returnDeck())
-    print(deckCode.encode())
