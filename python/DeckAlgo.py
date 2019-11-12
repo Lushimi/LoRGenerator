@@ -10,48 +10,40 @@ keywords = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain
 
 
 class Deck:
-    def __init__(self, region: str, secondRegion: str = None, *genres: "list of comparison statements that return bool"):
+    def __init__(self, region: str, secondRegion: str = None, *genres: (lambda card, deck: Bool) ):
         assert region in regions, "First region specified not found."
         assert secondRegion == None or secondRegion in regions, "Second region specified not found."
         self.genres = [i for i in genres]
         self.region = region
         self.secondRegion = secondRegion
-        
-#     deckData is a nested dict that is sructured as such:
-#     deckData
-#         ->Regions.
+#     "deckData" is a nested dict that is structured as such:
+#     "deckData"
+#         |
+#         ->Region.
+#             |
 #             ->Card.
-#                 -> Count of how many times that card code is in the deck.
+#                 |
+#                 -> Count of how many times that card is in the deck.
         self.deckData = dict()
         self.deckData[self.region] = defaultdict(int)
         self.deckData[self.secondRegion] = defaultdict(int)
-            
-        #dict that keeps track of card costs in the deck, and how many cards of a specific cost there are
+#        Dictionary that keeps track of card costs in the deck, and how many cards of a specific cost there are.
         self.cardCostCount = defaultdict(int)
         self.maxCards = 40
         self.championCount = 0
-        #dict that keeps track of the regions and how many cards are in that region
+#        Dictionary that keeps track of the regions and how many cards are in that region.
         self.cardCount = defaultdict(int)
-        
-    def addCard(self, card):       
-        self.deckData[card.region][card] += 1
-        self.cardCount[card.region] += 1
-        self.cardCostCount[card.cost] += 1
-        if card.supertype == "Champion":
-            self.championCount += 1
         
     def __setattr__(self, name, value):
         calling = inspect.stack()[1]
         assert calling.function != '__init__' or calling.function != 'addCard', "Cannot set attributed directly, only can be intialized or done with addCard."
         self.__dict__[name] = value
         
-
     def __len__(self)-> int:
         count = 0
         for i in self.cardCount.values():
             count += i
         return count
-
         
     def __repr__(self)-> str:
         return f"Deck({self.region}, {self.secondRegion}, {self.genres})"
@@ -59,11 +51,12 @@ class Deck:
     def __str__(self)-> str:
         rString = ""
         for region, data in self.deckData.items():
-            if region != None: rString += f"{region}: \n"
+            if region != None: rString += f"{region} ({self.cardCount[region]} Cards): \n"
             for card, count in data.items():
                 rString += f"\t[{card.type}] {card.name}: {count}\n"
         return rString
     
+#     Iterates through every card in the deck.
     def __iter__(self):
         wholeList = []
         for regions, data in self.deckData.items():
@@ -71,6 +64,19 @@ class Deck:
                 wholeList += [card]*count
         for i in wholeList:
             yield i
+              
+    def addCard(self, card):
+#         Only add card if ALL genres are satisfied
+        b = []
+        for i in self.genres:
+            b.append(i(card, self))
+        if all(b):
+            assert card.region in self.deckData, "Tried to add card to deck without required region."
+            self.deckData[card.region][card] += 1
+            self.cardCount[card.region] += 1
+            self.cardCostCount[card.cost] += 1
+            if card.supertype == "Champion":
+                self.championCount += 1
     
     def returnDeck(self)-> list:
         rList = []
@@ -114,19 +120,18 @@ class Card:
             self.descriptionKeywords += [hiddenKey]
 
     
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name + ": " + self.cardCode
 
 
-def basicCheck(card, deck: Deck, region = None):
-    if region == None: region = random.choice( [deck.region, deck.secondRegion] )
+def basicCheck(card, deck):
+    region = random.choice( [deck.region, deck.secondRegion] )
     assert region in deck.deckData, "Region specified is not in deck."
-    
-    # No more than 6 champion cards
+#     Passes by card if there's already 6 champion cards.
     if card.supertype == "Champion":
         if deck.championCount >= 6:
             return False   
-    # Card is in the correct region and is not a undeckable card
+#     Card is in the correct region and is not an undeckable card
     if card.region == region and card.collectible:
 #         Max of 40 cards in a deck
 #         Cards below 5 cost can only have a count of < 50% (cannot have 20 3-cost cards)
@@ -136,38 +141,47 @@ def basicCheck(card, deck: Deck, region = None):
                 return True
     return False
 
+def firstRegionBias(card, deck):
+    if card.region == deck.secondRegion:
+        if deck.cardCount[deck.secondRegion] >= 5:
+            return False
+    return True
+        
+def halfSplit(card, deck):
+    if card.region == deck.region:
+        if deck.cardCount[deck.region] == 20:
+            return False
+    return True
+
 
 if __name__ == "__main__":
-    #create master deck of cards
+#     Creates master deck of cards
     with open("set1-en_us.json", encoding ="utf8") as cardset:
         parsed = json.load(cardset)
         masterDeck = [Card(c) for c in parsed]
         
-    #add cards to specific regions or randomly assigns regions if none are specified
-    def fillDeck(deck: Deck, regions: tuple = (None, None)):
+#     Add cards to specific regions or randomly assigns regions if none are specified
+    def fillDeck(deck: Deck):
         while len(deck) < 40:
             card = random.choice(masterDeck)
-            if basicCheck(card, deck, regions[0]):
-                deck.addCard(card)
-            if basicCheck(card, deck, regions[1]):
-                deck.addCard(card)
+            deck.addCard(card)
         
-    #outputs a bunch of print statements to test deck
+#     Outputs a bunch of print statements to test a deck
     def testingScript(deck: Deck):
-        #tests str, repr, len, and return deck functions
+#         Tests str, repr, len, and return deck functions
         print(repr(deck))
         print()
         print(deck)
         print("Amount of Cards in Deck: " + str(len(deck)))
         print()
-        #prints a count of keywords in card's keyword list
+#         Prints a count of keywords in card's keyword list
         K = defaultdict(int)
         for i in deck:
             for j in i.keywords:
                 K[j] += 1
         print("Keywords: \n" + '\n'.join( [o + ": " + str(p) if len(K) != 0 else "None" for o,p in K.items()] ))
         print("=======================||")
-        #prints a count of keywords embedded in the card descriptions
+#         Prints a count of keywords embedded in the card descriptions
         dK = defaultdict(int)
         for i in deck:
             for j in i.descriptionKeywords:
@@ -178,14 +192,18 @@ if __name__ == "__main__":
         rCode = LoRDeck(deck.returnDeck())
         print(rCode.encode())
         
-    #create a deck with specifications
+        
+# TESTING LINES
+#     Test a deck with specifications
     print("\n\t\t/+/=====================================================[ Specific Test ]=====================================================\+\ \n")
-    myDeck = Deck("Shadow Isles", "Ionia", (lambda x: x.cost < 5 ) )
+    biasTest = [basicCheck, firstRegionBias]
+    biasTest2 = [basicCheck, halfSplit]
+    myDeck = Deck("Shadow Isles", "Ionia", *biasTest )
     fillDeck(myDeck)
     testingScript(myDeck)
     print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
-    #create a deck with no specifications, filled in by randomness
-    randomDeck = Deck(random.choice(regions), random.choice(regions))
+#     Test a deck with no specifications, filled in by randomness
+    randomDeck = Deck(random.choice(regions), random.choice(regions), *biasTest2)
     fillDeck(randomDeck)
     testingScript(randomDeck)
 
