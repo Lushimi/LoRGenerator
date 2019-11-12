@@ -158,14 +158,21 @@ if __name__ == "__main__":
         print(repr(deck))
         print()
         print(deck)
-        print("Length: " + str(len(deck)))
+        print("Amount of Cards in Deck: " + str(len(deck)))
         print()
+        #prints a count of keywords in card's keyword list
+        K = defaultdict(int)
+        for i in deck:
+            for j in i.keywords:
+                K[j] += 1
+        print("Keywords: \n" + '\n'.join( [o + ": " + str(p) if len(K) != 0 else "None" for o,p in K.items()] ))
+        print("=======================||")
         #prints a count of keywords embedded in the card descriptions
-        k = defaultdict(int)
+        dK = defaultdict(int)
         for i in deck:
             for j in i.descriptionKeywords:
-                k[j] += 1
-        print("Description Keywords: \n" + '\n'.join( [o + ": " + str(p) if len(k) != 0 else "None" for o,p in k.items()] ))
+                dK[j] += 1
+        print("Description Keywords: \n" + '\n'.join( [o + ": " + str(p) if len(dK) != 0 else "None" for o,p in dK.items()] ))
         print()
         print(deck.returnDeck())
         rCode = LoRDeck(deck.returnDeck())
