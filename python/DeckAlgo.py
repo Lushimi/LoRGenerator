@@ -24,19 +24,24 @@ class Deck:
             self.secondRegion = region
         else:
             self.secondRegion = secondRegion
-#     "deckData" is a nested dict that is structured as such:
-#     "deckData"
-#         |
-#         ->Region.
-#             |
-#             ->Card.
-#                 |
-#                 -> Count of how many times that card is in the deck.
+                 
+        '''
+            "deckData" is a nested dict that is structured as such:
+            deckData
+                |
+                -> region (Region in deck)
+                    |
+                    -> card (Card object in deck)
+                        |
+                        -> count (Count of how many times that card is in the deck.)
+        '''
+            
         self.deckData = dict()
         self.deckData[self.region] = defaultdict(int)
         self.deckData[self.secondRegion] = defaultdict(int)
 #        Dictionary that keeps track of card costs in the deck, and how many cards of a specific cost there are.
         self.cardCostCount = defaultdict(int)
+#        Dictionary that keeps track of subtypes in deck, and how many cards of each subtype there are.
         self.cardTypeCount = defaultdict(int)
         self.maxCards = 40
         self.championCount = 0
@@ -153,7 +158,7 @@ class Card:
     def __str__(self) -> str:
         return self.name + ": " + self.cardCode
 
-# Decorator functions.
+# Genre types (decorator functions).
 def basic(f):
     f.property = "basic"
     return f
@@ -168,6 +173,23 @@ def type_bias(f):
     return f
 
 # ///////////////////////////////////////////////  All GENRES  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+"""
+    To create a "genre" define a function that returns bool, decorate it with a proper genre type (copy paste following function as a template) => 
+    @genre_type
+    def genreFunction(deck, card)-> bool:
+        if (condition):
+#         Card is not added to deck.
+            return False
+        else:
+#         Card is added to deck.
+            return True 
+    
+    If you want to create your own genre type =>
+    def genre_type(f):
+        f.property = "genre_type"
+        return f
+"""
+
 @basic
 def basicCheck(card, deck) -> bool:
     region = random.choice( [deck.region, deck.secondRegion] )
@@ -236,7 +258,7 @@ def unitBias(card, deck)-> bool:
             return False
     return True
 
-#lower strength means higher bias, strength of 0 means all cards will be ephemeral
+#Lower strength means higher bias; for example if the keyword was ephemeral, strength of 0 means all cards will be ephemeral.
 def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
     assert keyword in KEYWORDS, "Specified keyword not found."
     @keyword_bias
@@ -262,7 +284,7 @@ def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
     return keywordBias
 
 #opposite of KBM
-#lower strength means lower bias, strength of 40 means all cards will be ephemeral
+#Lower strength means lower bias; for example if the keyword was ephemeral, strength of 40 means all cards will be ephemeral.
 def NKBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
     assert keyword in KEYWORDS, "Specified keyword not found."
     @keyword_bias
@@ -361,7 +383,7 @@ if __name__ == "__main__":
     print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
 #     Test a deck with no specifications, filled in by randomness
     g = randomGenreList(GENRES)
-#     g = [KBM("Ephemeral")]
+    #g = [KBM("Ephemeral")]
     if basicCheck not in g: g.append(basicCheck)
     randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *g)
     fillDeck(randomDeck)
