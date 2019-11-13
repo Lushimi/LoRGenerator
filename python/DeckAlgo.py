@@ -5,17 +5,24 @@ import inspect
 import random
 from lor_deckcodes import LoRDeck
 
-regions = ["Freljord", "Demacia", "Ionia", "Noxus", "Piltover & Zaun", "Shadow Isles"]
-keywords = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain', 'Stun', 'Trap', 'Piltover & Zaun', 'Demacia', 'Shadow Isles', 'Overwhelm', 'Barrier', 'Capture', 'Frostbite', 'Burst', 'Fleeting', 'Fast', 'Overwhelm', 'Quick Attack', 'Tough', 'Recall', 'Ionia', 'Regeneration', 'Lifesteal', 'Enlightened', 'Slow', 'Noxus', 'Ephemeral', 'Freljord', 'Last Breath', 'Challenger', 'Imbue', 'Fearsome', "Can't Block", 'Neutral', 'Noxus', 'Demacia', 'Freljord', 'Shadow Isles', 'Ionia', 'Piltover & Zaun', 'Slow', 'Burst', 'Fast', 'Common', 'Rare', 'Epic', 'Champion', 'None']
+REGIONS = ["Freljord", "Demacia", "Ionia", "Noxus", "Piltover & Zaun", "Shadow Isles"]
+KEYWORDS = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain', 'Stun', 'Trap', 'Piltover & Zaun', 'Demacia', 'Shadow Isles', 'Overwhelm', 'Barrier', 'Capture', 'Frostbite', 'Burst', 'Fleeting', 'Fast', 'Overwhelm', 'Quick Attack', 'Tough', 'Recall', 'Ionia', 'Regeneration', 'Lifesteal', 'Enlightened', 'Slow', 'Noxus', 'Ephemeral', 'Freljord', 'Last Breath', 'Challenger', 'Imbue', 'Fearsome', "Can't Block", 'Neutral', 'Noxus', 'Demacia', 'Freljord', 'Shadow Isles', 'Ionia', 'Piltover & Zaun', 'Slow', 'Burst', 'Fast', 'Common', 'Rare', 'Epic', 'Champion', 'None']
 
 
 class Deck:
-    def __init__(self, region: str, secondRegion: str = None, *genres: (lambda card, deck: Bool) ):
-        assert region in regions, "First region specified not found."
-        assert secondRegion == None or secondRegion in regions, "Second region specified not found."
-        self.genres = [i for i in genres]
+    def __init__(self, region: str, secondRegion: str, *genres: (lambda card, deck: Bool) ):
+        assert region in REGIONS, "First region specified not found."
+        assert secondRegion == None or secondRegion in REGIONS, "Second region specified not found."
+        gp = [i.property for i in genres]
+        for i in gp:
+            if gp.count(i) > 1:
+                raise ValueError("Cannot have more than one genre of the same type.")
+        self.genres = sorted([i for i in genres], key = lambda x: x.property)
         self.region = region
-        self.secondRegion = secondRegion
+        if secondRegion == None:
+            self.secondRegion = region
+        else:
+            self.secondRegion = secondRegion
 #     "deckData" is a nested dict that is structured as such:
 #     "deckData"
 #         |
@@ -70,7 +77,7 @@ class Deck:
         b = []
         for i in self.genres:
             b.append(i(card, self))
-        if all(b):
+        if all(b) == True:
             assert card.region in self.deckData, "Tried to add card to deck without required region."
             self.deckData[card.region][card] += 1
             self.cardCount[card.region] += 1
@@ -123,8 +130,20 @@ class Card:
     def __str__(self) -> str:
         return self.name + ": " + self.cardCode
 
+# Decorator functions.
+def basic(f):
+    f.property = "basic"
+    return f
+def region_bias(f):
+    f.property = "region_bias"
+    return f
+def keyword_bias(f):
+    f.property = "keyword_bias"
+    return f
 
-def basicCheck(card, deck):
+# ///////////////////////////////////////////////  All GENRES  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+@basic
+def basicCheck(card, deck) -> bool:
     region = random.choice( [deck.region, deck.secondRegion] )
     assert region in deck.deckData, "Region specified is not in deck."
 #     Passes by card if there's already 6 champion cards.
@@ -137,22 +156,83 @@ def basicCheck(card, deck):
 #         Cards below 5 cost can only have a count of < 50% (cannot have 20 3-cost cards)
 #         Cards above 5 cost can only have a count of < 37.5% (cannot have 14 6-cost cards)
         if len(deck) < deck.maxCards and deck.cardCostCount[card.cost] <= .5*deck.maxCards and not deck.cardCostCount[card.cost] >= .375*deck.maxCards:
-            if (deck.deckData[region].get(card.cardCode) == None or deck.deckData[region][card.cardCode] <= 3):
+            if deck.deckData[region].get(card.cardCode) == None:
+                return True
+            elif deck.deckData[region][card.cardCode] <= 3:
                 return True
     return False
 
-def firstRegionBias(card, deck):
-    if card.region == deck.secondRegion:
-        if deck.cardCount[deck.secondRegion] >= 5:
-            return False
-    return True
-        
-def halfSplit(card, deck):
-    if card.region == deck.region:
-        if deck.cardCount[deck.region] == 20:
-            return False
+@region_bias
+def firstRegionBias(card, deck)-> bool:
+    if deck.secondRegion != deck.region:
+        if card.region == deck.secondRegion:
+            if deck.cardCount[deck.secondRegion] >= random.randint(5,7):
+                return False
     return True
 
+@region_bias  
+def secondRegionBias(card, deck)-> bool:
+    if deck.secondRegion != deck.region:
+        if card.region == deck.region:
+            if deck.cardCount[deck.region] >= random.randint(5,7):
+                return False
+    return True
+        
+@region_bias
+def halfSplit(card, deck)-> bool:
+    if deck.secondRegion != deck.region:
+        if card.region == deck.region:
+            if deck.cardCount[deck.region] == 20:
+                return False
+    return True
+
+def RBM(secondRegionAmount: int = 20):
+    @region_bias
+    def ratioRegionBias(card, deck)-> bool:
+        if deck.secondRegion != deck.region:
+            if card.region == deck.secondRegion:
+                if deck.cardCount[deck.secondRegion] >= secondRegionAmount:
+                    return False
+        return True
+    return ratioRegionBias
+
+#lower strength means higher bias, strength of 0 means all cards will be ephemeral
+def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
+    assert keyword in KEYWORDS, "Specified keyword not found."
+    @keyword_bias
+    def keywordBias(card, deck)-> bool:
+        #look at all keywords in cards
+        kSet = set()
+        for l in card.keywords:
+                kSet |= {l}
+        for l in card.descriptionKeywords:
+                kSet |= {l}
+        joinedKeywords = defaultdict(int)
+        for i in deck:
+            for j in i.keywords:
+                joinedKeywords[j] += 1
+        for i in deck:
+            for j in i.descriptionKeywords:
+                joinedKeywords[j] += 1
+        for cK in kSet:
+            if cK != keyword:
+                if joinedKeywords[cK] >= strength:
+                    return False
+        return True
+    return keywordBias
+
+GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM(), RBM()]
+
+def randomGenreList(genres)-> list:
+    gCount = defaultdict(int)
+    gList = []
+#     TODO change this
+    for i in range(len(genres)):
+        randomGenre = random.choice(genres)
+        gCount[randomGenre.property] += 1
+        if gCount[randomGenre.property] <= 1:
+            gList.append(randomGenre)
+    return gList
 
 if __name__ == "__main__":
 #     Creates master deck of cards
@@ -196,14 +276,14 @@ if __name__ == "__main__":
 # TESTING LINES
 #     Test a deck with specifications
     print("\n\t\t/+/=====================================================[ Specific Test ]=====================================================\+\ \n")
-    biasTest = [basicCheck, firstRegionBias]
-    biasTest2 = [basicCheck, halfSplit]
-    myDeck = Deck("Shadow Isles", "Ionia", *biasTest )
+    myDeck = Deck("Shadow Isles", "Ionia", basicCheck, KBM("Ephemeral", 3), firstRegionBias)
     fillDeck(myDeck)
     testingScript(myDeck)
     print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
 #     Test a deck with no specifications, filled in by randomness
-    randomDeck = Deck(random.choice(regions), random.choice(regions), *biasTest2)
+    g = randomGenreList(GENRES)
+    if basicCheck not in g: g.append(basicCheck)
+    randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *g)
     fillDeck(randomDeck)
     testingScript(randomDeck)
 
