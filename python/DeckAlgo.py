@@ -184,7 +184,7 @@ def basicCheck(card, deck) -> bool:
         if len(deck) < deck.maxCards and deck.cardCostCount[card.cost] <= .5*deck.maxCards and not deck.cardCostCount[card.cost] >= .375*deck.maxCards:
             if deck.deckData[region].get(card) == None:
                 return True
-            elif deck.deckData[region][card] <= 3:
+            elif deck.deckData[region][card] < 3:
                 return True
     return False
 
