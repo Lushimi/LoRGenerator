@@ -180,7 +180,7 @@ def mixed(f):
 
 # ///////////////////////////////////////////////  All GENRES  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 """
-    To create a "genre" define a function that returns bool, decorate it with a proper genre type (copy paste following function as a template) => 
+To create a "genre" define a function that returns bool, decorate it with a proper genre type (copy paste following function as a template) => 
     @genre_type
     def genreFunction(deck, card)-> bool:
         if (condition):
@@ -190,7 +190,7 @@ def mixed(f):
 #         Card is added to deck.
             return True 
     
-    If you want to create your own genre type =>
+If you want to create your own genre type =>
     def genre_type(f):
         f.property = "genre_type"
         return f
@@ -360,7 +360,8 @@ def MIX(g1, g2):
         return False
     return mixedGenre
 
-GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM(), NKBM(), RBM(), spellBias, unitBias, VBM(), NVBM()]
+GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM(), RBM(), spellBias, unitBias, VBM()]
+OTHER =[MIX(lambda x: x, lambda y: y), NKBM(), NVBM()]
 
 def randomGenreList(genres)-> list:
     gCount = defaultdict(int)
@@ -388,7 +389,7 @@ if __name__ == "__main__":
                 card = random.choice(masterDeck)
                 deck.addCard(card)
                 infinitePrevention += 1
-                assert infinitePrevention < 100000, "\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\t\t=+= COULD NOT CREATE A DECK WITH THE SPECIFIED CRITERIA. =+=\t\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+                assert infinitePrevention < 9999, "\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\t\t=+= COULD NOT CREATE A DECK WITH THE SPECIFIED CRITERIA. =+=\t\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
             return True
         except AssertionError as errorStatement:
             print(errorStatement)
@@ -441,7 +442,7 @@ if __name__ == "__main__":
         else:
             failure += 1
         if printBool: print("\n\t\t/+/=====================================================[ Mix Test (Demacia, Freljord) ]=====================================================\+\ \n")
-        genres = [basicCheck, NVBM("Play", 5)]
+        genres = [basicCheck, NKBM("Buff", 10), VBM("Play")]
         myDeck = Deck("Demacia", "Freljord", *genres)
         if fillDeck(myDeck):
             if printBool: printDeckInfo(myDeck)
