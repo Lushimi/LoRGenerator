@@ -6,7 +6,7 @@ import random
 from lor_deckcodes import LoRDeck
 
 REGIONS = ["Freljord", "Demacia", "Ionia", "Noxus", "Piltover & Zaun", "Shadow Isles"]
-KEYWORDS = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain', 'Stun', 'Trap', 'Piltover & Zaun', 'Demacia', 'Shadow Isles', 'Overwhelm', 'Barrier', 'Capture', 'Frostbite', 'Burst', 'Fleeting', 'Fast', 'Overwhelm', 'Quick Attack', 'Tough', 'Recall', 'Ionia', 'Regeneration', 'Lifesteal', 'Enlightened', 'Slow', 'Noxus', 'Ephemeral', 'Freljord', 'Last Breath', 'Challenger', 'Imbue', 'Fearsome', "Can't Block", 'Neutral', 'Noxus', 'Demacia', 'Freljord', 'Shadow Isles', 'Ionia', 'Piltover & Zaun', 'Slow', 'Burst', 'Fast', 'Common', 'Rare', 'Epic', 'Champion', 'Discard', 'Nexus', 'Create', 'Summon', 'Buff' 'None']
+KEYWORDS = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain', 'Stun', 'Trap', 'Piltover & Zaun', 'Demacia', 'Shadow Isles', 'Overwhelm', 'Barrier', 'Capture', 'Frostbite', 'Burst', 'Fleeting', 'Fast', 'Overwhelm', 'Quick Attack', 'Tough', 'Recall', 'Ionia', 'Regeneration', 'Lifesteal', 'Enlightened', 'Slow', 'Noxus', 'Ephemeral', 'Freljord', 'Last Breath', 'Challenger', 'Imbue', 'Fearsome', "Can't Block", 'Neutral', 'Noxus', 'Demacia', 'Freljord', 'Shadow Isles', 'Ionia', 'Piltover & Zaun', 'Slow', 'Burst', 'Fast', 'Common', 'Rare', 'Epic', 'Champion', 'Discard', 'Nexus', 'Create', 'Summon', 'Buff', 'None']
 VOCAB = ['Strike', 'Allegiance', 'Support', 'Strongest', 'Play', 'Attack']
 SUBTYPES = ['', 'Spider', 'Yeti', 'Tech', 'Elite', 'Elnuk', 'Poro']
 
@@ -171,6 +171,12 @@ def keyword_bias(f):
 def type_bias(f):
     f.property ="type_bias"
     return f
+def vocab_bias(f):
+    f.property ="type_bias"
+    return f
+def mixed(f):
+    f.property ="mixed"
+    return f
 
 # ///////////////////////////////////////////////  All GENRES  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 """
@@ -258,58 +264,103 @@ def unitBias(card, deck)-> bool:
             return False
     return True
 
+#Soft bias towards keyword.
 #Lower strength means higher bias; for example if the keyword was ephemeral, strength of 0 means all cards will be ephemeral.
 def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
     assert keyword in KEYWORDS, "Specified keyword not found."
     @keyword_bias
     def keywordBias(card, deck)-> bool:
-        #look at all keywords in cards
-        kSet = set()
-        for l in card.keywords:
-                kSet |= {l}
-        for l in card.descriptionKeywords:
-                kSet |= {l}
-        joinedKeywords = defaultdict(int)
-        for i in deck:
-            for j in i.keywords:
-                joinedKeywords[j] += 1
-        for i in deck:
-            for j in i.descriptionKeywords:
-                joinedKeywords[j] += 1
-        for cK in kSet:
-            if cK != keyword:
-                if joinedKeywords[cK] >= strength:
+        allCardKeywords = set()
+        for kw in card.keywords:
+                allCardKeywords |= {kw}
+        for kw in card.descriptionKeywords:
+                allCardKeywords |= {kw}
+        allDeckKeywords = defaultdict(int)
+        for card in deck:
+            for kw in card.keywords:
+                allDeckKeywords[kw] += 1
+        for card in deck:
+            for kw in card.descriptionKeywords:
+                allDeckKeywords[kw] += 1
+        for cardKW in allCardKeywords:
+            if cardKW != keyword:
+                if allDeckKeywords[cardKW] >= strength:
                     return False
         return True
     return keywordBias
 
-#opposite of KBM
-#Lower strength means lower bias; for example if the keyword was ephemeral, strength of 40 means all cards will be ephemeral.
-def NKBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
+#Stronger than KBM, hard bias.
+#Strength is the minimum number of cards from the keyword you want in your deck.
+def NKBM(keyword: str = random.choice(KEYWORDS), strength: int = 7):
     assert keyword in KEYWORDS, "Specified keyword not found."
     @keyword_bias
     def keywordBias(card, deck)-> bool:
-        #look at all keywords in cards
-        kSet = set()
-        for l in card.keywords:
-                kSet |= {l}
-        for l in card.descriptionKeywords:
-                kSet |= {l}
-        joinedKeywords = defaultdict(int)
-        for i in deck:
-            for j in i.keywords:
-                joinedKeywords[j] += 1
-        for i in deck:
-            for j in i.descriptionKeywords:
-                joinedKeywords[j] += 1
-        for cK in kSet:
-            if cK == keyword:
-                if joinedKeywords[cK] >= strength:
-                    return False
-        return True
+        allCardKeywords = set()
+        for kw in card.keywords:
+                allCardKeywords |= {kw}
+        for kw in card.descriptionKeywords:
+                allCardKeywords |= {kw}
+        allDeckKeywords = defaultdict(int)
+        for card in deck:
+            for kw in card.keywords:
+                allDeckKeywords[kw] += 1
+        for card in deck:
+            for kw in card.descriptionKeywords:
+                allDeckKeywords[kw] += 1
+        if keyword in allCardKeywords:
+            return True
+        elif allDeckKeywords[keyword] >= strength:
+            return True
+        else:
+            return False
     return keywordBias
 
-GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM(), NKBM(), RBM(), spellBias, unitBias]
+#Soft bias for vocab word.
+#Lower strength means higher bias; for example if the keyword was "Play", strength of 0 means all cards will be "Play".
+def VBM(vocabWord: str = random.choice(VOCAB), strength: int = 3):
+    assert vocabWord in VOCAB, "Specified vocab not found."
+    @vocab_bias
+    def vocabBias(card, deck)-> bool:
+        #look at all keywords in cards
+        vocabList = defaultdict(int)
+        for card in deck:
+            for vw in card.vocab:
+                vocabList[vw] += 1
+        for cardVW in card.vocab:
+            if cardVW != vocabWord:
+                if vocabList[cardVW] >= strength:
+                    return False
+        return True
+    return vocabBias
+
+#Stronger than VBM, hard bias.
+#Strength is the minimum number of cards from the vocab word you want in your deck.
+def NVBM(vocabWord: str = random.choice(VOCAB), strength: int = 7):
+    assert vocabWord in VOCAB, "Specified vocab not found."
+    @vocab_bias
+    def vocabBias(card, deck)-> bool:
+        #look at all keywords in cards
+        vocabList = defaultdict(int)
+        for card in deck:
+            for vw in card.vocab:
+                vocabList[vw] += 1
+        if vocabWord in card.vocab:
+            return True
+        elif vocabList[vocabWord] >= strength:
+            return True
+        else:
+            return False
+    return vocabBias
+
+def MIX(g1, g2):
+    @mixed
+    def mixedGenre(card, deck) -> bool:
+        if g1(card, deck) and g2(card, deck):
+            return True
+        return False
+    return mixedGenre
+
+GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM(), NKBM(), RBM(), spellBias, unitBias, VBM(), NVBM()]
 
 def randomGenreList(genres)-> list:
     gCount = defaultdict(int)
@@ -322,23 +373,29 @@ def randomGenreList(genres)-> list:
             gList.append(randomGenre)
     return gList
 
+
 if __name__ == "__main__":
 #     Creates master deck of cards
     with open("set1-en_us.json", encoding ="utf8") as cardset:
         parsed = json.load(cardset)
         masterDeck = [Card(c) for c in parsed]
         
-#     Add cards to specific regions or randomly assigns regions if none are specified
-    def fillDeck(deck: Deck):
-        infinitePrevention = 0
-        while len(deck) < 40:
-            card = random.choice(masterDeck)
-            deck.addCard(card)
-            infinitePrevention += 1
-            assert infinitePrevention < 99999, "Cannot create a deck with specified criteria."
+#     Add cards to specific regions or randomly assigns regions if none are specified, returns if it filled a valid deck or not (bool).
+    def fillDeck(deck: Deck)-> bool:
+        try:
+            infinitePrevention = 0
+            while len(deck) < 40:
+                card = random.choice(masterDeck)
+                deck.addCard(card)
+                infinitePrevention += 1
+                assert infinitePrevention < 100000, "\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\t\t=+= COULD NOT CREATE A DECK WITH THE SPECIFIED CRITERIA. =+=\t\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+            return True
+        except AssertionError as errorStatement:
+            print(errorStatement)
+            return False
         
 #     Outputs a bunch of print statements to test a deck
-    def testingScript(deck: Deck):
+    def printDeckInfo(deck: Deck):
 #         Tests str, repr, len, and return deck functions
         print(repr(deck))
         print()
@@ -365,10 +422,6 @@ if __name__ == "__main__":
                 dV[j] += 1
         print("Vocab: \n" + '\n'.join( ["    " + o + ": " + str(p) if len(dV) != 0 else "None" for o,p in dV.items()] ))
         print()
-        for region, data in deck.deckData.items():
-            for card, count in data.items():
-                if count > 3:
-                    print("COULD NOT CREATE A VALID DECK FROM THIS CRITERIA. ADDED AN EXTRA CARD (MORE THAN THE 3-MAX LIMIT).")
         print(deck.returnDeck())
         rCode = LoRDeck(deck.returnDeck())
         print(rCode.encode())
@@ -376,17 +429,42 @@ if __name__ == "__main__":
         
 # TESTING LINES
 #     Test a deck with specifications
-    print("\n\t\t/+/=====================================================[ Specific Test ]=====================================================\+\ \n")
-    myDeck = Deck("Shadow Isles", "Ionia", basicCheck, KBM("Ephemeral", 3), firstRegionBias)
-    fillDeck(myDeck)
-    testingScript(myDeck)
-    print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
-#     Test a deck with no specifications, filled in by randomness
-    g = randomGenreList(GENRES)
-    #g = [KBM("Ephemeral")]
-    if basicCheck not in g: g.append(basicCheck)
-    randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *g)
-    fillDeck(randomDeck)
-    testingScript(randomDeck)
+    def testingScript(printBool: bool):
+        success, failure = 0, 0
+        
+        if printBool: print("\n\t\t/+/=====================================================[ Specific Test (Shadow Isles/ Ionia) ]=====================================================\+\ \n")
+        genres = [basicCheck, KBM("Ephemeral", 3), firstRegionBias]
+        myDeck = Deck("Shadow Isles", "Ionia", *genres)
+        if fillDeck(myDeck):
+            if printBool: printDeckInfo(myDeck)
+            success += 1
+        else:
+            failure += 1
+        if printBool: print("\n\t\t/+/=====================================================[ Mix Test (Demacia, Freljord) ]=====================================================\+\ \n")
+        genres = [basicCheck, NVBM("Play", 5)]
+        myDeck = Deck("Demacia", "Freljord", *genres)
+        if fillDeck(myDeck):
+            if printBool: printDeckInfo(myDeck)
+            success += 1
+        else:
+            failure += 1
+        if printBool: print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
+    #     Test a deck with no specifications, filled in by randomness
+        genres = randomGenreList(GENRES)
+        if basicCheck not in genres: genres.append(basicCheck)
+        randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
+        if fillDeck(randomDeck):
+            if printBool: printDeckInfo(randomDeck)
+            success += 1
+        else:
+            failure += 1
+            
+        return success, failure
 
+    successRate = defaultdict(int)
+    for tests in range(1):
+        k,v = testingScript(True)
+        successRate["Success"] += k
+        successRate["Failure"] += v
+    print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
     
