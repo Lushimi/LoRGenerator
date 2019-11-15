@@ -3,6 +3,7 @@ package app;
 import app.index.IndexController;
 import app.util.Filters;
 import app.util.Path;
+import app.util.ViewUtil;
 
 import static spark.Spark.*;
 import static spark.debug.DebugScreen.*;
@@ -16,6 +17,7 @@ public class Application {
 
         before("*", Filters.addTrailingSlashes);
 
-        get(Path.Web.INDEX, IndexController.serveIndexPage);
+        get("*", IndexController.serveIndexPage);
+
     }
 }

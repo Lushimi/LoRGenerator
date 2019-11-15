@@ -1,0 +1,6 @@
+#parse("/velocity/layout.vm")
+#@mainLayout()
+    <h1>THIS IS A TEST</h1>
+    <p>click this button to do nothing</p>
+    <button type="button">GENERATE A DECK</button>
+#end
