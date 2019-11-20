@@ -9,7 +9,6 @@ REGIONS = ["Freljord", "Demacia", "Ionia", "Noxus", "Piltover & Zaun", "Shadow I
 KEYWORDS = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain', 'Stun', 'Trap', 'Piltover & Zaun', 'Demacia', 'Shadow Isles', 'Overwhelm', 'Barrier', 'Capture', 'Frostbite', 'Burst', 'Fleeting', 'Fast', 'Overwhelm', 'Quick Attack', 'Tough', 'Recall', 'Ionia', 'Regeneration', 'Lifesteal', 'Enlightened', 'Slow', 'Noxus', 'Ephemeral', 'Freljord', 'Last Breath', 'Challenger', 'Imbue', 'Fearsome', "Can't Block", 'Neutral', 'Noxus', 'Demacia', 'Freljord', 'Shadow Isles', 'Ionia', 'Piltover & Zaun', 'Slow', 'Burst', 'Fast', 'Common', 'Rare', 'Epic', 'Champion', 'Discard', 'Nexus', 'Create', 'Summon', 'Buff', 'Burn', 'None']
 VOCAB = ['Strike', 'Allegiance', 'Support', 'Strongest', 'Play', 'Attack']
 SUBTYPES = ['', 'Spider', 'Yeti', 'Tech', 'Elite', 'Elnuk', 'Poro']
-#TODO Make make a dictionary of all regions and a set of all keywords in that region.
 
 class Deck:
     def __init__(self, region: str, secondRegion: str, *genres: (lambda card, deck: Bool) ):
@@ -37,6 +36,8 @@ class Deck:
                         -> count (Count of how many times that card is in the deck.)
         '''
             
+        self.possibleCards = DECKS[region]
+        self.possibleCards.extend(DECKS[secondRegion])
         self.deckData = dict()
         self.deckData[self.region] = defaultdict(int)
         self.deckData[self.secondRegion] = defaultdict(int)
@@ -277,6 +278,7 @@ def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
     assert keyword in KEYWORDS, "Specified keyword not found."
     @keyword_bias
     def keywordBias(card, deck)-> bool:
+        assert keyword in REGION_WORDS[deck.region]["Keywords"]|REGION_WORDS[deck.secondRegion]["Keywords"], "Randomly picked invalid word."
         allCardKeywords = set()
         for kw in card.keywords:
                 allCardKeywords |= {kw}
@@ -290,7 +292,7 @@ def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
             for kw in card.descriptionKeywords:
                 allDeckKeywords[kw] += 1
         for cardKW in allCardKeywords:
-            if cardKW != keyword:
+            if cardKW != k:
                 if allDeckKeywords[cardKW] >= strength:
                     return False
         return True
@@ -302,6 +304,7 @@ def NKBM(keyword: str = random.choice(KEYWORDS), strength: int = 7):
     assert keyword in KEYWORDS, "Specified keyword not found."
     @keyword_bias
     def keywordBias(card, deck)-> bool:
+        assert keyword in REGION_WORDS[deck.region]["Keywords"]|REGION_WORDS[deck.secondRegion]["Keywords"], "Randomly picked invalid word."
         allCardKeywords = set()
         for kw in card.keywords:
                 allCardKeywords |= {kw}
@@ -328,6 +331,7 @@ def VBM(vocabWord: str = random.choice(VOCAB), strength: int = 3):
     assert vocabWord in VOCAB, "Specified vocab not found."
     @vocab_bias
     def vocabBias(card, deck)-> bool:
+        assert keyword in REGION_WORDS[deck.region]["Vocab"]|REGION_WORDS[deck.secondRegion]["Vocab"], "Randomly picked invalid word."
         #look at all keywords in cards
         vocabList = defaultdict(int)
         for card in deck:
@@ -346,6 +350,7 @@ def NVBM(vocabWord: str = random.choice(VOCAB), strength: int = 7):
     assert vocabWord in VOCAB, "Specified vocab not found."
     @vocab_bias
     def vocabBias(card, deck)-> bool:
+        assert keyword in REGION_WORDS[deck.region]["Vocab"]|REGION_WORDS[deck.secondRegion]["Vocab"], "Randomly picked invalid word."
         #look at all keywords in cards
         vocabList = defaultdict(int)
         for card in deck:
@@ -414,17 +419,33 @@ def randomGenreList(genres)-> list:
 
 
 if __name__ == "__main__":
-#     Creates master deck of cards
+#     Creates master deck of cards and a master DECK dictionary for each regions' cards.
     with open("set1-en_us.json", encoding ="utf8") as cardset:
         parsed = json.load(cardset)
-        masterDeck = [Card(c) for c in parsed]
+        DECKS = {}
+        for r in REGIONS:
+            DECKS[r] = []
+        for c in parsed:
+            temp = Card(c)
+            DECKS[temp.region] += [temp]
+        masterDeck = [c for l in DECKS.values() for c in l]    
         
+        REGION_WORDS = defaultdict(dict)
+        for k,v in DECKS.items():
+            REGION_WORDS[k]["Keywords"] = set()
+            REGION_WORDS[k]["Subtypes"] = set()
+            REGION_WORDS[k]["Vocab"] = set()
+            for c in v:
+                REGION_WORDS[k]["Keywords"] |= set(c.keywords) | set(c.descriptionKeywords)
+                REGION_WORDS[k]["Subtypes"] |= {c.subtype} 
+                REGION_WORDS[k]["Vocab"] |= set(c.vocab)
+
 #     Add cards to specific regions or randomly assigns regions if none are specified, returns if it filled a valid deck or not (bool).
     def fillDeck(deck: Deck)-> bool:
         try:
             infinitePrevention = 0
             while len(deck) < 40:
-                card = random.choice(masterDeck)
+                card = random.choice(deck.possibleCards)
                 deck.addCard(card)
                 infinitePrevention += 1
                 assert infinitePrevention < 9999, "\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\t\t=+= COULD NOT CREATE A DECK WITH THE SPECIFIED CRITERIA. =+=\t\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
@@ -432,7 +453,37 @@ if __name__ == "__main__":
         except AssertionError as errorStatement:
             print(errorStatement)
             return False
-        
+
+#     Creates a deck object from an unfinished deck code.
+    def fromUnfinishedDeck(deckCode: str, genres:list = [basicCheck], regions = None):
+        cards = []
+        if regions == None: tempRegion = set()
+        for i in LoRDeck.from_deckcode(deckCode).cards:
+            cards += [(i.count, i.card_code)]
+            if regions == None:
+                temp = i.faction
+                if temp == "IO": temp = "Ionia"
+                if temp == "SI": temp = "Shadow Isles"
+                if temp == "DE": temp = "Demacia"
+                if temp == "FR": temp = "Freljord"
+                if temp == "NX": temp = "Noxus"
+                if temp == "PZ": temp = "Piltover & Zaun"
+                tempRegion |= {temp}
+        if regions == None: regions = tempRegion
+        rDeck = Deck(*regions, *genres)
+        for i in cards:
+            cardOverride(rDeck, i[1], i[0])
+        return rDeck
+
+#     Add cards bypassing the genres.
+    def cardOverride(deck:Deck, cardName:str, amount:int):
+        for card in deck.possibleCards:
+            if (card.name == cardName or card.cardCode == cardName) and card.collectible:
+                addingCard = card
+                break
+        for i in range(amount):
+            deck.addCard(addingCard, True)
+
 #     Outputs a bunch of print statements to test a deck
     def printDeckInfo(deck: Deck):
 #         Tests str, repr, len, and return deck functions
@@ -470,56 +521,58 @@ if __name__ == "__main__":
         rCode = LoRDeck(deck.returnDeck())
         print(rCode.encode())
         
+    
         
 # TESTING LINES
-#     Test a deck with specifications
     def testingScript(printBool: bool):
         success, failure = 0, 0
         
-#         if printBool: print("\n\t\t/+/=====================================================[ Specific Test (Shadow Isles/ Ionia) ]=====================================================\+\ \n")
-#         genres = [basicCheck, KBM("Ephemeral", 3), firstRegionBias]
-#         myDeck = Deck("Shadow Isles", "Ionia", *genres)
-#         if fillDeck(myDeck):
-#             if printBool: printDeckInfo(myDeck)
-#             success += 1
-#         else:
-#             failure += 1
-        if printBool: print("\n\t\t/+/=====================================================[ Mix Test (Demacia, Freljord) ]=====================================================\+\ \n")
-        genres = [basicCheck, CBM(4, 5), NKBM("Frostbite", 6)]
-        myDeck = Deck("Freljord", "Freljord", *genres)
-        for card in masterDeck:
-            if card.name == "She Who Wanders" and card.collectible:
-                myDeck.addCard(card, True)
-                myDeck.addCard(card, True)
-            if card.name == "Tryndamere" and card.collectible:
-                myDeck.addCard(card, True)
-                myDeck.addCard(card, True)
-            if card.name == "Braum" and card.collectible:
-                myDeck.addCard(card, True)
-                myDeck.addCard(card, True)
-            if card.name == "Ashe" and card.collectible:
-                myDeck.addCard(card, True)
-                myDeck.addCard(card, True)
+        if printBool: print("\n\t\t/+/=====================================================[ Specific Test (Shadow Isles/ Ionia) ]=====================================================\+\ \n")
+# Test a deck with specifications
+        genres = [basicCheck, KBM("Ephemeral", 3), firstRegionBias]
+        myDeck = Deck("Shadow Isles", "Ionia", *genres)
         if fillDeck(myDeck):
             if printBool: printDeckInfo(myDeck)
             success += 1
         else:
             failure += 1
-#         if printBool: print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
-#     #     Test a deck with no specifications, filled in by randomness
-#         genres = randomGenreList(GENRES)
-#         if basicCheck not in genres: genres.append(basicCheck)
-#         randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
-#         if fillDeck(randomDeck):
-#             if printBool: printDeckInfo(randomDeck)
-#             success += 1
-#         else:
-#             failure += 1
-#             
+        if printBool: print("\n\t\t/+/=====================================================[ Mix Test (Demacia, Freljord) ]=====================================================\+\ \n")     
+# Test the MIX genre
+        genres = [basicCheck, MIX(CBM(4, 5), NKBM("Frostbite", 6))]
+        myDeck = Deck("Freljord", "Freljord", *genres)  
+        cardOverride(myDeck, "She Who Wanders", 2)
+        cardOverride(myDeck, "Tryndamere", 2)
+        cardOverride(myDeck, "Braum", 2)
+        cardOverride(myDeck, "Ashe", 2)     
+        if fillDeck(myDeck):
+            if printBool: printDeckInfo(myDeck)
+            success += 1
+        else:
+            failure += 1
+        if printBool: print("\n\t\t/+/=====================================================[ Partial Import Test (Shadow Isles, Ionia) ]=====================================================\+\ \n")     
+# Test a deck from an unfinished deck code
+        genres = [basicCheck, CBM(4, 5)]
+        myDeck = fromUnfinishedDeck("CEAQCAIFGUAQCAICBEAA", genres)  
+        if fillDeck(myDeck):
+            if printBool: printDeckInfo(myDeck)
+            success += 1
+        else:
+            failure += 1
+        if printBool: print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
+# Test a deck with no specifications, filled in by randomness
+        genres = randomGenreList(GENRES)
+        if basicCheck not in genres: genres.append(basicCheck)
+        randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
+        if fillDeck(randomDeck):
+            if printBool: printDeckInfo(randomDeck)
+            success += 1
+        else:
+            failure += 1
+             
         return success, failure
 
     successRate = defaultdict(int)
-    for tests in range(20):
+    for tests in range(1):
         k,v = testingScript(True)
         successRate["Success"] += k
         successRate["Failure"] += v
