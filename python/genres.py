@@ -207,7 +207,7 @@ def NVBM(vocabWord: str = random.choice(VOCAB), strength: int = 7):
 #Soft bias towards cost.
 #Allows cards lower than the card cost, but not higher
 #Lower strength means higher bias; for example if the cost was 5, strength of 0 means all cards will be 5-cost.
-def CBM(cost: str = random.choice([range(8)]), strength: int = 3):
+def CBM(cost: int = random.randint(1,8), strength: int = 3):
     assert cost >= 0 and cost < 12, "Cost is not valid."
     @cost_bias
     def costBias(card, deck)-> bool:
@@ -220,7 +220,7 @@ def CBM(cost: str = random.choice([range(8)]), strength: int = 3):
 #Stronger than CBM, hard bias.
 #Allows cards lower than the card cost, but not higher
 #Strength is the minimum number of cards from the cost you want in your deck.
-def NCBM(cost: str = random.choice([range(8)]), strength: int = 7):
+def NCBM(cost: int = random.randint(1,8), strength: int = 7):
     assert cost >= 0 and cost < 12, "Cost is not valid."
     @cost_bias
     def costBias(card, deck)-> bool:
@@ -243,6 +243,7 @@ def MIX(g1, g2):
         return False
     return mixedGenre
 
-GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM(), RBM(), spellBias, unitBias, VBM()]
-OTHER =[MIX(lambda x: x, lambda y: y), NKBM(), NVBM()]
+GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM(), RBM(), spellBias, unitBias, VBM(), CBM()]
+OTHER =[MIX(lambda x: x, lambda y: y), NKBM(), NVBM(), NCBM()]
+ALLGENRES = GENRES + OTHER
 

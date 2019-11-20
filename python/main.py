@@ -80,19 +80,19 @@ if __name__ == '__main__':
         genres = randomGenreList(GENRES)
         if basicCheck not in genres: genres.append(basicCheck)
         randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
-        if myDeck.fillDeck():
+        if randomDeck.fillDeck():
             if printBool: randomDeck.printDeckInfo()
             success += 1
         else:
             failure += 1
         print()
-        rCode = LoRDeck(myDeck.returnDeck())
+        rCode = LoRDeck(randomDeck.returnDeck())
         print(rCode.encode())
         
         return success, failure
 
     successRate = defaultdict(int)
-    for tests in range(1):
+    for tests in range(5):
         k,v = testingScript(True)
         successRate["Success"] += k
         successRate["Failure"] += v
