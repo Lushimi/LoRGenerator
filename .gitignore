@@ -32,3 +32,5 @@ build/
 
 ### MAC ###
 .DS_Store
+
+python/apikey
