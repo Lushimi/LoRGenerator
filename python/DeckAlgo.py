@@ -278,7 +278,7 @@ def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
     assert keyword in KEYWORDS, "Specified keyword not found."
     @keyword_bias
     def keywordBias(card, deck)-> bool:
-        assert keyword in REGION_WORDS[deck.region]["Keywords"]|REGION_WORDS[deck.secondRegion]["Keywords"], "Randomly picked invalid word."
+#         assert keyword in REGION_WORDS[deck.region]["Keywords"]|REGION_WORDS[deck.secondRegion]["Keywords"], "Randomly picked invalid word."
         allCardKeywords = set()
         for kw in card.keywords:
                 allCardKeywords |= {kw}
@@ -292,7 +292,7 @@ def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
             for kw in card.descriptionKeywords:
                 allDeckKeywords[kw] += 1
         for cardKW in allCardKeywords:
-            if cardKW != k:
+            if cardKW != keyword:
                 if allDeckKeywords[cardKW] >= strength:
                     return False
         return True
@@ -304,7 +304,7 @@ def NKBM(keyword: str = random.choice(KEYWORDS), strength: int = 7):
     assert keyword in KEYWORDS, "Specified keyword not found."
     @keyword_bias
     def keywordBias(card, deck)-> bool:
-        assert keyword in REGION_WORDS[deck.region]["Keywords"]|REGION_WORDS[deck.secondRegion]["Keywords"], "Randomly picked invalid word."
+#         assert keyword in REGION_WORDS[deck.region]["Keywords"]|REGION_WORDS[deck.secondRegion]["Keywords"], "Randomly picked invalid word."
         allCardKeywords = set()
         for kw in card.keywords:
                 allCardKeywords |= {kw}
@@ -331,7 +331,7 @@ def VBM(vocabWord: str = random.choice(VOCAB), strength: int = 3):
     assert vocabWord in VOCAB, "Specified vocab not found."
     @vocab_bias
     def vocabBias(card, deck)-> bool:
-        assert keyword in REGION_WORDS[deck.region]["Vocab"]|REGION_WORDS[deck.secondRegion]["Vocab"], "Randomly picked invalid word."
+#         assert keyword in REGION_WORDS[deck.region]["Vocab"]|REGION_WORDS[deck.secondRegion]["Vocab"], "Randomly picked invalid word."
         #look at all keywords in cards
         vocabList = defaultdict(int)
         for card in deck:
@@ -350,7 +350,7 @@ def NVBM(vocabWord: str = random.choice(VOCAB), strength: int = 7):
     assert vocabWord in VOCAB, "Specified vocab not found."
     @vocab_bias
     def vocabBias(card, deck)-> bool:
-        assert keyword in REGION_WORDS[deck.region]["Vocab"]|REGION_WORDS[deck.secondRegion]["Vocab"], "Randomly picked invalid word."
+#         assert keyword in REGION_WORDS[deck.region]["Vocab"]|REGION_WORDS[deck.secondRegion]["Vocab"], "Randomly picked invalid word."
         #look at all keywords in cards
         vocabList = defaultdict(int)
         for card in deck:
