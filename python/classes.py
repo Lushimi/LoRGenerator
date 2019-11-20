@@ -5,6 +5,9 @@ import random
 from collections import defaultdict
 
 class Deck:
+    """
+    A collection of cards and meta data about the collection of cards.
+    """
     def __init__(self, region: str, secondRegion: str, *genres: (lambda card, deck: Bool) ):
         assert region in REGIONS, "First region specified not found."
         assert secondRegion == None or secondRegion in REGIONS, "Second region specified not found."
@@ -104,7 +107,7 @@ class Deck:
                 card = random.choice(self.possibleCards)
                 self.addCard(card)
                 infinitePrevention += 1
-                assert infinitePrevention < 9999, "\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\t\t=+= COULD NOT CREATE A DECK WITH THE SPECIFIED CRITERIA. =+=\t\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+                assert infinitePrevention < 9999, "\n\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\t\t=+= COULD NOT CREATE A DECK WITH THE SPECIFIED CRITERIA. =+=\t\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
             return True
         except AssertionError as errorStatement:
             print(errorStatement)
@@ -155,6 +158,9 @@ class Deck:
 
 
 class Card:
+    """
+    Is a collection of all data a Legends of Runeterra card has.
+    """
     def __init__(self, db: dict):
         self.associatedCards = db["associatedCards"]
         self.associatedCardRefs = db["associatedCardRefs"]
@@ -211,6 +217,10 @@ class Card:
     def __str__(self) -> str:
         return self.name + ": " + self.cardCode
 
+# ///////////////////////////////////////////////  All GLOBAL CONSTANTS  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+"""
+    A bunch of global variables to use in other functions.
+"""
 REGIONS = ["Freljord", "Demacia", "Ionia", "Noxus", "Piltover & Zaun", "Shadow Isles"]
 KEYWORDS = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain', 'Stun', 'Trap', 'Piltover & Zaun', 'Demacia', 'Shadow Isles', 'Overwhelm', 'Barrier', 'Capture', 'Frostbite', 'Burst', 'Fleeting', 'Fast', 'Overwhelm', 'Quick Attack', 'Tough', 'Recall', 'Ionia', 'Regeneration', 'Lifesteal', 'Enlightened', 'Slow', 'Noxus', 'Ephemeral', 'Freljord', 'Last Breath', 'Challenger', 'Imbue', 'Fearsome', "Can't Block", 'Neutral', 'Noxus', 'Demacia', 'Freljord', 'Shadow Isles', 'Ionia', 'Piltover & Zaun', 'Slow', 'Burst', 'Fast', 'Common', 'Rare', 'Epic', 'Champion', 'Discard', 'Nexus', 'Create', 'Summon', 'Buff', 'Burn', 'None']
 VOCAB = ['Strike', 'Allegiance', 'Support', 'Strongest', 'Play', 'Attack']
@@ -235,3 +245,6 @@ with open("set1-en_us.json", encoding ="utf8") as cardset:
             REGION_WORDS[k]["Keywords"] |= set(c.keywords) | set(c.descriptionKeywords)
             REGION_WORDS[k]["Subtypes"] |= {c.subtype} 
             REGION_WORDS[k]["Vocab"] |= set(c.vocab)
+
+if __name__ == "__main__":
+    print('Please run all testing from the main.py')

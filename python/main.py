@@ -92,8 +92,8 @@ if __name__ == '__main__':
         return success, failure
 
     successRate = defaultdict(int)
-    for tests in range(5):
-        k,v = testingScript(True)
+    for tests in range(20):
+        k,v = testingScript(False)
         successRate["Success"] += k
         successRate["Failure"] += v
     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
