@@ -37,7 +37,7 @@ if __name__ == '__main__':
 # TESTING LINES
     def testingScript(printBool: bool):
         success, failure = 0, 0
-        
+         
         if printBool: print("\n\t\t/+/=====================================================[ Specific Test (Shadow Isles/ Ionia) ]=====================================================\+\ \n")
 # Test a deck with specifications
         genres = [basicCheck, KBM("Ephemeral", 3), firstRegionBias]
@@ -47,6 +47,7 @@ if __name__ == '__main__':
             success += 1
         else:
             failure += 1
+        del myDeck
         if printBool: print("\n\t\t/+/=====================================================[ Mix Test (Demacia, Freljord) ]=====================================================\+\ \n")     
 # Test the MIX genre
         genres = [basicCheck, MIX(CBM(4, 5), NKBM("Frostbite", 6))]
@@ -63,6 +64,7 @@ if __name__ == '__main__':
         print()
         rCode = LoRDeck(myDeck.returnDeck())
         print(rCode.encode())
+        del myDeck
         if printBool: print("\n\t\t/+/=====================================================[ Partial Import Test (Shadow Isles, Ionia) ]=====================================================\+\ \n")     
 # Test a deck from an unfinished deck code
         genres = [basicCheck, CBM(4, 5)]
@@ -88,12 +90,12 @@ if __name__ == '__main__':
         print()
         rCode = LoRDeck(randomDeck.returnDeck())
         print(rCode.encode())
-        
+        del randomDeck
         return success, failure
 
     successRate = defaultdict(int)
-    for tests in range(20):
-        k,v = testingScript(False)
+    for tests in range(10):
+        k,v = testingScript(True)
         successRate["Success"] += k
         successRate["Failure"] += v
     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")

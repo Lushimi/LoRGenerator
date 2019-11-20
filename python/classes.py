@@ -228,13 +228,18 @@ SUBTYPES = ['', 'Spider', 'Yeti', 'Tech', 'Elite', 'Elnuk', 'Poro']
 #     Creates master deck of cards and a master DECK dictionary for each regions' cards.
 with open("set1-en_us.json", encoding ="utf8") as cardset:
     parsed = json.load(cardset)
+    
+    
+    
     DECKS = {}
     for r in REGIONS:
         DECKS[r] = []
     for c in parsed:
         temp = Card(c)
         DECKS[temp.region] += [temp]
-    masterDeck = [c for l in DECKS.values() for c in l]    
+    del temp
+    del parsed
+    masterDeck = [c for l in DECKS.values() for c in l]
     
     REGION_WORDS = defaultdict(dict)
     for k,v in DECKS.items():
@@ -245,6 +250,7 @@ with open("set1-en_us.json", encoding ="utf8") as cardset:
             REGION_WORDS[k]["Keywords"] |= set(c.keywords) | set(c.descriptionKeywords)
             REGION_WORDS[k]["Subtypes"] |= {c.subtype} 
             REGION_WORDS[k]["Vocab"] |= set(c.vocab)
+            
 
 if __name__ == "__main__":
     print('Please run all testing from the main.py')
