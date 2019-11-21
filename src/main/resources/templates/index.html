@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <link href="css/styles.css" rel="stylesheet"/>
@@ -10,6 +10,9 @@
     <h2>Legends of Runeterra</h2>
     <h3>by Studio Gaffers</h3>
     <p>Generate a random deck for the Legends of Runeterra card game.</p>
-    <button></button>
+    <form action="#" th:action="@{/deck}" th:object="${deck}" method="post">
+        <input type="hidden" th:field="*{deckCode}" th:value="${deck.generateRandomDeck()}"/>
+        <input type="submit" value="Generate New Deck" />
+    </form>
 </body>
 </html>

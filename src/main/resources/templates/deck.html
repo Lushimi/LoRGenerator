@@ -1,11 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <link href="css/styles.css" rel="stylesheet"/>
     <title>Legends of Runeterra Deck Generator</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-
+    <h1>Your Deck</h1>
+    <p th:utext="${deck.getDeckCode()}">DECK HERE</p>
+    <div class="back">
+        <p>
+            <a href="/">Back</a>
+        </p>
+    </div>
 </body>
 </html>
