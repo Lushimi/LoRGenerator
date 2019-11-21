@@ -1,5 +1,6 @@
 from lor_deckcodes import LoRDeck
-from python.genres import *
+import os.path
+from genres import *
 
 if __name__ == '__main__':
     def randomGenreList(genres)-> list:
@@ -97,9 +98,19 @@ if __name__ == '__main__':
         del randomDeck
         return success, failure
 
-    successRate = defaultdict(int)
-    for tests in range(10):
-        k,v = testingScript(True)
-        successRate["Success"] += k
-        successRate["Failure"] += v
-    print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
+#     successRate = defaultdict(int)
+#     for tests in range(10):
+#         k,v = testingScript(True)
+#         successRate["Success"] += k
+#         successRate["Failure"] += v
+#     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
+    savepath = os.getcwd()[:-7] + "\\src\\main\\resources\\"
+    with open(os.path.join(os.path.expanduser('~'), savepath, "deckCodes.txt"), "w") as outfile:
+        genres = randomGenreList(GENRES)
+        if basicCheck not in genres: genres.append(basicCheck)
+        randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
+        if randomDeck.fillDeck():
+            rCode = LoRDeck(randomDeck.returnDeck())
+            outfile.write(rCode.encode())
+        del randomDeck
+    

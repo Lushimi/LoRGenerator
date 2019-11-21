@@ -1,4 +1,4 @@
-from python.classes import *
+from classes import *
 
 # Genre types (decorator functions).
 def basic(f):
