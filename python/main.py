@@ -106,11 +106,17 @@ if __name__ == '__main__':
 #     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
     savepath = os.getcwd()[:-7] + "\\src\\main\\resources\\"
     with open(os.path.join(os.path.expanduser('~'), savepath, "deckCodes.txt"), "w") as outfile:
+        successRate = defaultdict(int)
         genres = randomGenreList(GENRES)
-        if basicCheck not in genres: genres.append(basicCheck)
-        randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
-        if randomDeck.fillDeck():
-            rCode = LoRDeck(randomDeck.returnDeck())
-            outfile.write(rCode.encode())
+        for i in range(10):
+            if basicCheck not in genres: genres.append(basicCheck)
+            randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
+            if randomDeck.fillDeck():
+                rCode = LoRDeck(randomDeck.returnDeck())
+                outfile.write(rCode.encode())
+                successRate["Success"] += 1
+            else:
+                successRate["Failure"] += 1
+        print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
         del randomDeck
     
