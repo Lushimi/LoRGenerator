@@ -1,4 +1,4 @@
-package com.studiogaffers.lorgenerator.util;
+package com.studiogaffers.lorgenerator.deck;
 
 public class DeckGenerator {
 
