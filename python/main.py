@@ -47,6 +47,9 @@ if __name__ == '__main__':
             success += 1
         else:
             failure += 1
+        print()
+        rCode = LoRDeck(myDeck.returnDeck())
+        print(rCode.encode())
         del myDeck
         if printBool: print("\n\t\t/+/=====================================================[ Mix Test (Demacia, Freljord) ]=====================================================\+\ \n")     
 # Test the MIX genre
@@ -77,6 +80,7 @@ if __name__ == '__main__':
         print()
         rCode = LoRDeck(myDeck.returnDeck())
         print(rCode.encode())
+        del myDeck
         if printBool: print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
 # Test a deck with no specifications, filled in by randomness
         genres = randomGenreList(GENRES)

@@ -228,9 +228,6 @@ SUBTYPES = ['', 'Spider', 'Yeti', 'Tech', 'Elite', 'Elnuk', 'Poro']
 #     Creates master deck of cards and a master DECK dictionary for each regions' cards.
 with open("set1-en_us.json", encoding ="utf8") as cardset:
     parsed = json.load(cardset)
-    
-    
-    
     DECKS = {}
     for r in REGIONS:
         DECKS[r] = []
