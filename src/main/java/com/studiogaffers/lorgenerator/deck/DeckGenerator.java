@@ -1,6 +1,7 @@
 package com.studiogaffers.lorgenerator.deck;
 
 
+import com.studiogaffers.lorgenerator.util.StreamGobbler;
 import org.python.util.PythonInterpreter;
 
 import javax.annotation.Resource;
@@ -11,14 +12,32 @@ import java.util.Scanner;
 public class DeckGenerator {
 
     public static String generateDeck() {
+        String path = "python python/main.py";
+        Runtime rt = Runtime.getRuntime();
+        System.out.println("Execing python process...");
+
         try {
-            Process p = Runtime.getRuntime().exec("python python/main.py");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.toString());
+            Process proc = rt.exec(path);
+
+            // error msgs?
+            StreamGobbler errorGobbler = new StreamGobbler(proc.getErrorStream(), "ERROR");
+
+            // output msgs?
+            StreamGobbler outputGobbler = new StreamGobbler(proc.getInputStream(), "OUTPUT");
+
+            // get em
+            errorGobbler.start();
+            outputGobbler.start();
+
+            int exitVal = proc.waitFor();
+            System.out.println("ExitValue: " + exitVal);
+
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return "ERROR: CHECK CONSOLE";
         }
 
-        Scanner scanner = new Scanner(Resource)
+        return "SUCCESS!!! CHECK CONSOLE";
     }
 
 }
