@@ -229,7 +229,7 @@ KEYWORDS = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain
 VOCAB = ['Strike', 'Allegiance', 'Support', 'Strongest', 'Play', 'Attack']
 SUBTYPES = ['', 'Spider', 'Yeti', 'Tech', 'Elite', 'Elnuk', 'Poro']
 #     Creates master deck of cards and a master DECK dictionary for each regions' cards.
-savepath = Path(os.getcwd()) / "python/set1-en_us.json"
+savepath = Path(os.getcwd()) / "set1-en_us.json"
 with open(savepath, encoding ="utf8") as cardset:
     parsed = json.load(cardset)
     DECKS = {}
@@ -601,13 +601,7 @@ if __name__ == '__main__':
 #         successRate["Success"] += k
 #         successRate["Failure"] += v
 #     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
-    savepath = Path(os.getcwd() + "/target/lorgenerator-0.0.1-SNAPSHOT.jar/BOOT-INF/classes/") / "deckCodes.txt"
-    print(savepath)
-    if os.path.exists(savepath):
-        os.remove(savepath)
-    else:
-        print("The file does not exist")
-with open(os.path.join(os.path.expanduser('~'), savepath), "w") as outfile:
+with open("deckCodes.txt", "w") as outfile:
         successRate = defaultdict(int)
         genres = randomGenreList(GENRES)
         for i in range(10):
