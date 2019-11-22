@@ -94,6 +94,9 @@
             <resource>
                 <directory>src/main/resources</directory>
             </resource>
+            <resource>
+                <directory>python</directory>
+            </resource>
         </resources>
     </build>
 
