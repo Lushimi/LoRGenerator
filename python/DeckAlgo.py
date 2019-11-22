@@ -601,8 +601,13 @@ if __name__ == '__main__':
 #         successRate["Success"] += k
 #         successRate["Failure"] += v
 #     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
-    savepath = Path(os.getcwd() + "/src/main/resources/") / "deckCodes.txt"
-    with open(os.path.join(os.path.expanduser('~'), savepath), "w") as outfile:
+    savepath = Path(os.getcwd() + "/target/lorgenerator-0.0.1-SNAPSHOT.jar/BOOT-INF/classes/") / "deckCodes.txt"
+    print(savepath)
+    if os.path.exists(savepath):
+        os.remove(savepath)
+    else:
+        print("The file does not exist")
+with open(os.path.join(os.path.expanduser('~'), savepath), "w") as outfile:
         successRate = defaultdict(int)
         genres = randomGenreList(GENRES)
         for i in range(10):

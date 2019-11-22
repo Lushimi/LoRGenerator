@@ -7,12 +7,27 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-    <h1>Your Deck</h1>
-    <p th:utext="${deck.generateRandomDeck()}">DECK HERE</p>
-    <div class="back">
-        <p>
-            <a href="/">Back</a>
-        </p>
+    <div id="container">
+        <div id="header">
+            <h1>Your Deck</h1>
+        </div>
+        <div id="body">
+            <p th:utext="${deck.generateRandomDeck()}">DECK HERE</p>
+            <div class="back">
+                <p>
+                    <a href="/">Back</a>
+                </p>
+            </div>
+
+        </div>
+        <div id="footer">
+            <footer>
+                <p>"Legends of Runeterra Deck Generator" isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games
+                    or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are
+                    trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.</p>
+            </footer>
+        </div>
     </div>
 </body>
+
 </html>

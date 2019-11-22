@@ -56,15 +56,18 @@ public class DeckGenerator {
 
             if(resourceLoader != null) {
                 Resource resource = resourceLoader.getResource("classpath:deckCodes.txt");
+                System.out.println(resource.getURI());
                 InputStream is = resource.getInputStream();
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 StringBuilder out = new StringBuilder();
                 String line;
                 while ((line = br.readLine()) != null) {
+                    System.out.println(line);
                     if(out.length() <= 0) out.append(line);
                 }
                 System.out.println(out.toString());
                 System.out.println("SOMETHING HAPPENED");
+
                 return out.toString();
             } else {
                 System.out.println("RESOURCE LOADER DOESNT EXIST");

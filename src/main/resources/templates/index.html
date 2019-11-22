@@ -6,13 +6,26 @@
     <title>Legends of Runeterra Deck Generator</title>
 </head>
 <body>
-    <h1>Deck Generator</h1>
-    <h2><b>Legends of Runeterra</b></h2>
-    <h3>by Studio Gaffers</h3>
-    <p>Generate a random deck for the Legends of Runeterra card game.</p>
-    <form action="#" th:action="@{/deck}" th:object="${deck}" method="post">
-        <input type="submit" value="Generate New Deck" />
-    </form>
+    <div id="container">
+        <div id="header">
+            <h1>Legends of Runeterra Deck Generator</h1>
+            <h3>by Studio Gaffers</h3>
+        </div>
+        <div id="body">
+            <p>Generate a random deck for the Legends of Runeterra card game.</p>
+            <form action="#" th:action="@{/deck}" th:object="${deck}" method="post">
+                <input type="submit" value="Generate New Deck" />
+            </form>
+
+        </div>
+        <div id="footer">
+            <footer>
+                <p>"Legends of Runeterra Deck Generator" isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games
+                    or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are
+                    trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.</p>
+            </footer>
+        </div>
+    </div>
 </body>
 
 </html>
