@@ -44,8 +44,10 @@ public class DeckGenerator {
 
             BufferedReader stdInput = new BufferedReader(new 
             		InputStreamReader(proc.getInputStream()));
-
+            
+      
             java.util.Scanner s = new java.util.Scanner(stdInput).useDelimiter("\\A");
+            
             String val = "";
             if (s.hasNext()) {
                 val = s.next();
@@ -53,8 +55,10 @@ public class DeckGenerator {
             else {
                 val = "";
             }
+            val = val.replace("\n", "<br>");
             return val;
             
+            //who even needs error messages
 //            BufferedReader stdError = new BufferedReader(new 
 //            	     InputStreamReader(proc.getErrorStream()));
 //            
@@ -74,7 +78,7 @@ public class DeckGenerator {
 //            
 //            return out.toString();
 //            System.out.println(out.toString());
-
+            //screw error messages
             
             
             

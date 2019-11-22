@@ -245,7 +245,7 @@ def MIX(g1, g2):
 
 GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM(), RBM(), spellBias, unitBias, VBM(), CBM()]
 OTHER =[MIX(lambda x: x, lambda y: y), NKBM(), NVBM(), NCBM()]
-ALL_GENRES = GENRES + OTHER
+ALL_GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM, RBM, spellBias, unitBias, VBM, CBM, MIX, NKBM, NVBM, NCBM]
 
 if __name__ == "__main__":
     print('Please run all testing from the main.py')

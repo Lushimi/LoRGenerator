@@ -298,6 +298,9 @@ If you want to create your own genre type =>
 
 @basic
 def basicCheck(card, deck) -> bool:
+    """
+    This is to ensure the deck is valid, it is in by default.
+    """
     region = random.choice( [deck.region, deck.secondRegion] )
     assert region in deck.deckData, "Region specified is not in deck."
 #     Passes by card if there's already 6 champion cards.
@@ -318,6 +321,9 @@ def basicCheck(card, deck) -> bool:
 
 @region_bias
 def firstRegionBias(card, deck)-> bool:
+    """
+    Biases the deck towards the first region specified. If mono-region, then it will do nothing.
+    """
     if deck.secondRegion != deck.region:
         if card.region == deck.secondRegion:
             if deck.cardCount[deck.secondRegion] >= 8:
@@ -326,6 +332,9 @@ def firstRegionBias(card, deck)-> bool:
 
 @region_bias  
 def secondRegionBias(card, deck)-> bool:
+    """
+    Biases the deck towards the second region specified. If mono-region, then it will do nothing.
+    """
     if deck.secondRegion != deck.region:
         if card.region == deck.region:
             if deck.cardCount[deck.region] >= 8:
@@ -334,13 +343,18 @@ def secondRegionBias(card, deck)-> bool:
         
 @region_bias
 def halfSplit(card, deck)-> bool:
+    """
+    Tries to make a 20/20 deck.
+    """
     if deck.secondRegion != deck.region:
         if card.region == deck.region:
             if deck.cardCount[deck.region] == 20:
                 return False
     return True
 
+@region_bias
 def RBM(secondRegionAmount: int = 20):
+    """ RBM(30) Specify the second region amount, default is 20. """
     @region_bias
     def ratioRegionBias(card, deck)-> bool:
         if deck.secondRegion != deck.region:
@@ -352,6 +366,9 @@ def RBM(secondRegionAmount: int = 20):
 
 @type_bias
 def spellBias(card, deck)-> bool:
+    """
+    Biases the deck towards spell cards.
+    """
     if card.type == "Unit":
         if deck.cardTypeCount["Unit"] >= 10:
             return False
@@ -359,6 +376,9 @@ def spellBias(card, deck)-> bool:
 
 @type_bias
 def unitBias(card, deck)-> bool:
+    """
+    Biases the deck towards unit cards.
+    """
     if card.type == "Spell":
         if deck.cardTypeCount["Spell"] >= 10:
             return False
@@ -366,7 +386,12 @@ def unitBias(card, deck)-> bool:
 
 #Keyword Bias Maker, Soft bias towards keyword.
 #Lower strength means higher bias; for example if the keyword was ephemeral, strength of 0 means all cards will be ephemeral.
+@keyword_bias
 def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
+    """
+    KBM('Keyword', strength) Soft bias. Specify the key word and strength of bias, default is a random keyword and a strength of 3.
+    Lower strength means higher bias; for example if the keyword was ephemeral, strength of 0 means all cards will be ephemeral.
+    """
     assert keyword in KEYWORDS, "Specified keyword not found."
     @keyword_bias
     def keywordBias(card, deck)-> bool:
@@ -392,7 +417,12 @@ def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
 
 #Stronger than KBM, hard bias.
 #Strength is the minimum number of cards from the keyword you want in your deck.
+@keyword_bias
 def NKBM(keyword: str = random.choice(KEYWORDS), strength: int = 7):
+    """
+    NKBM('Keyword', strength) Soft bias. Specify the key word and strength of bias, default is a random keyword and a strength of 7.
+    Strength is the minimum number of cards from the keyword you want in your deck.
+    """
     assert keyword in KEYWORDS, "Specified keyword not found."
     @keyword_bias
     def keywordBias(card, deck)-> bool:
@@ -419,7 +449,12 @@ def NKBM(keyword: str = random.choice(KEYWORDS), strength: int = 7):
 
 #Vocab Bias Maker, Soft bias for vocab word.
 #Lower strength means higher bias; for example if the keyword was "Play", strength of 0 means all cards will be "Play".
+@vocab_bias
 def VBM(vocabWord: str = random.choice(VOCAB), strength: int = 3):
+    """
+    VBM('Vocab Word', strength) Soft bias. Specify the vocab word and strength of bias, default is a random vocab word and a strength of 3.
+    Lower strength means higher bias; for example if the keyword was "Play", strength of 0 means all cards will be "Play".
+    """
     assert vocabWord in VOCAB, "Specified vocab not found."
     @vocab_bias
     def vocabBias(card, deck)-> bool:
@@ -438,7 +473,12 @@ def VBM(vocabWord: str = random.choice(VOCAB), strength: int = 3):
 
 #Stronger than VBM, hard bias.
 #Strength is the minimum number of cards from the vocab word you want in your deck.
+@vocab_bias
 def NVBM(vocabWord: str = random.choice(VOCAB), strength: int = 7):
+    """
+    VBM('Vocab Word', strength) Soft bias. Specify the vocab word and strength of bias, default is a random vocab word and a strength of 7.
+    Strength is the minimum number of cards from the vocab word you want in your deck.
+    """
     assert vocabWord in VOCAB, "Specified vocab not found."
     @vocab_bias
     def vocabBias(card, deck)-> bool:
@@ -459,7 +499,14 @@ def NVBM(vocabWord: str = random.choice(VOCAB), strength: int = 7):
 #Cost Bias Maker, Soft bias towards cost.
 #Allows cards lower than the card cost, but not higher
 #Lower strength means higher bias; for example if the cost was 5, strength of 0 means all cards will be 5-cost.
+@cost_bias
 def CBM(cost: int = random.randint(1,8), strength: int = 3):
+    """
+    CBM(cost, strength)
+    Soft bias towards cost, default is a random cost 1-8 and a strength of 3.
+    Allows cards lower than the card cost, but not higher
+    Lower strength means higher bias; for example if the cost was 5, strength of 0 means all cards will be 5-cost.
+    """
     assert cost >= 0 and cost < 12, "Cost is not valid."
     @cost_bias
     def costBias(card, deck)-> bool:
@@ -472,7 +519,14 @@ def CBM(cost: int = random.randint(1,8), strength: int = 3):
 #Stronger than CBM, hard bias.
 #Allows cards lower than the card cost, but not higher
 #Strength is the minimum number of cards from the cost you want in your deck.
+@cost_bias
 def NCBM(cost: int = random.randint(1,8), strength: int = 7):
+    """
+    NCBM(cost, strength)
+    Soft bias towards cost, default is a random cost 1-8 and a strength of 7.
+    Allows cards lower than the card cost, but not higher
+    Strength is the minimum number of cards from the cost you want in your deck.
+    """
     assert cost >= 0 and cost < 12, "Cost is not valid."
     @cost_bias
     def costBias(card, deck)-> bool:
@@ -484,8 +538,12 @@ def NCBM(cost: int = random.randint(1,8), strength: int = 7):
             return False
     return costBias
 
-
+@mixed
 def MIX(g1, g2):
+    """
+    MIX('genre1', 'genre2')
+    Takes in two genres and tries to make sure both are true.
+    """
     @mixed
     def mixedGenre(card, deck) -> bool:
         if g1(card, deck) and g2(card, deck):
@@ -497,7 +555,9 @@ def MIX(g1, g2):
 
 GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM(), RBM(), spellBias, unitBias, VBM(), CBM()]
 OTHER =[MIX(lambda x: x, lambda y: y), NKBM(), NVBM(), NCBM()]
-ALL_GENRES = GENRES + OTHER
+SIMPLE_GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, spellBias, unitBias]
+MAKER_GENRES = [KBM, RBM, VBM, CBM, MIX, NKBM, NVBM, NCBM]
+ALL_GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM, RBM, spellBias, unitBias, VBM, CBM, MIX, NKBM, NVBM, NCBM]
 
 if __name__ == '__main__':
     def randomGenreList(genres)-> list:
@@ -533,74 +593,176 @@ if __name__ == '__main__':
         return rDeck
         
 # TESTING LINES
-    def testingScript(printBool: bool):
-        success, failure = 0, 0
-         
-        if printBool: print("\n\t\t/+/=====================================================[ Specific Test (Shadow Isles/ Ionia) ]=====================================================\+\ \n")
-# Test a deck with specifications
-        genres = [basicCheck, KBM("Ephemeral", 3), firstRegionBias]
-        myDeck = Deck("Shadow Isles", "Ionia", *genres)
-        if myDeck.fillDeck():
-            if printBool: myDeck.printDeckInfo()
-            success += 1
-        else:
-            failure += 1
-        print()
-        rCode = LoRDeck(myDeck.returnDeck())
-        print(rCode.encode())
-        del myDeck
-        if printBool: print("\n\t\t/+/=====================================================[ Mix Test (Demacia, Freljord) ]=====================================================\+\ \n")     
-# Test the MIX genre
-        genres = [basicCheck, MIX(CBM(4, 5), NKBM("Frostbite", 6))]
-        myDeck = Deck("Freljord", "Freljord", *genres)  
-        myDeck.cardOverride("She Who Wanders", 2)
-        myDeck.cardOverride("Tryndamere", 2)
-        myDeck.cardOverride("Braum", 2)
-        myDeck.cardOverride("Ashe", 2)     
-        if myDeck.fillDeck():
-            if printBool: myDeck.printDeckInfo()
-            success += 1
-        else:
-            failure += 1
-        print()
-        rCode = LoRDeck(myDeck.returnDeck())
-        print(rCode.encode())
-        del myDeck
-        if printBool: print("\n\t\t/+/=====================================================[ Partial Import Test (Shadow Isles, Ionia) ]=====================================================\+\ \n")     
-# Test a deck from an unfinished deck code
-        genres = [basicCheck, CBM(4, 5)]
-        myDeck = fromUnfinishedDeck("CEAQCAIFGUAQCAICBEAA", genres)  
-        if myDeck.fillDeck():
-            if printBool: myDeck.printDeckInfo()
-            success += 1
-        else:
-            failure += 1
-        print()
-        rCode = LoRDeck(myDeck.returnDeck())
-        print(rCode.encode())
-        del myDeck
-        if printBool: print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
-# Test a deck with no specifications, filled in by randomness
-        genres = randomGenreList(GENRES)
-        if basicCheck not in genres: genres.append(basicCheck)
-        randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
-        if randomDeck.fillDeck():
-            if printBool: randomDeck.printDeckInfo()
-            success += 1
-        else:
-            failure += 1
-        print()
-        rCode = LoRDeck(randomDeck.returnDeck())
-        print(rCode.encode())
-        del randomDeck
-        return success, failure
+#     def testingScript(printBool: bool):
+#         success, failure = 0, 0
+#          
+#         if printBool: print("\n\t\t/+/=====================================================[ Specific Test (Shadow Isles/ Ionia) ]=====================================================\+\ \n")
+# # Test a deck with specifications
+#         genres = [basicCheck, KBM("Ephemeral", 3), firstRegionBias]
+#         myDeck = Deck("Shadow Isles", "Ionia", *genres)
+#         if myDeck.fillDeck():
+#             if printBool: myDeck.printDeckInfo()
+#             success += 1
+#         else:
+#             failure += 1
+#         print()
+#         rCode = LoRDeck(myDeck.returnDeck())
+#         print(rCode.encode())
+#         del myDeck
+#         if printBool: print("\n\t\t/+/=====================================================[ Mix Test (Demacia, Freljord) ]=====================================================\+\ \n")     
+# # Test the MIX genre
+#         genres = [basicCheck, MIX(CBM(4, 5), NKBM("Frostbite", 6))]
+#         myDeck = Deck("Freljord", "Freljord", *genres)  
+#         myDeck.cardOverride("She Who Wanders", 2)
+#         myDeck.cardOverride("Tryndamere", 2)
+#         myDeck.cardOverride("Braum", 2)
+#         myDeck.cardOverride("Ashe", 2)     
+#         if myDeck.fillDeck():
+#             if printBool: myDeck.printDeckInfo()
+#             success += 1
+#         else:
+#             failure += 1
+#         print()
+#         rCode = LoRDeck(myDeck.returnDeck())
+#         print(rCode.encode())
+#         del myDeck
+#         if printBool: print("\n\t\t/+/=====================================================[ Partial Import Test (Shadow Isles, Ionia) ]=====================================================\+\ \n")     
+# # Test a deck from an unfinished deck code
+#         genres = [basicCheck, CBM(4, 5)]
+#         myDeck = fromUnfinishedDeck("CEAQCAIFGUAQCAICBEAA", genres)  
+#         if myDeck.fillDeck():
+#             if printBool: myDeck.printDeckInfo()
+#             success += 1
+#         else:
+#             failure += 1
+#         print()
+#         rCode = LoRDeck(myDeck.returnDeck())
+#         print(rCode.encode())
+#         del myDeck
+#         if printBool: print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
+# # Test a deck with no specifications, filled in by randomness
+#         genres = randomGenreList(GENRES)
+#         if basicCheck not in genres: genres.append(basicCheck)
+#         randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
+#         if randomDeck.fillDeck():
+#             if printBool: randomDeck.printDeckInfo()
+#             success += 1
+#         else:
+#             failure += 1
+#         print()
+#         rCode = LoRDeck(randomDeck.returnDeck())
+#         print(rCode.encode())
+#         del randomDeck
+#         return success, failure
 
-    successRate = defaultdict(int)
-    for tests in range(1):
-        k,v = testingScript(False)
-        successRate["Success"] += k
-        successRate["Failure"] += v
-    print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
+#     successRate = defaultdict(int)
+#     for tests in range(1):
+#         k,v = testingScript(True)
+#         successRate["Success"] += k
+#         successRate["Failure"] += v
+#     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.\n")
+#     
+    print("Genres are given in the form of: \n\t[property]GenreName\n")
+    print("GENRES:", end = " ")
+    print( ["["+ i.property + "]" + i.__name__ for i in ALL_GENRES] )
+    userGenres = []
+    userInput = input("\nGive genre names from the list above. You cannot specify two genres of the same property.\nYou can 'stop' without adding anything for random genres. To see more info about a genre, type 'help {genre name}'\n")
+    while userInput.lower() != 'stop':
+        
+        if userInput in [i.__name__ for i in SIMPLE_GENRES]:
+            exec(f"""
+if {userInput}.property in [i.property for i in userGenres]:
+    print("Cannot add genre of the same type.")
+else:
+    userGenres += [{userInput}]
+    print ('{userInput} added.')
+                """)
+
+        if userInput in [i.__name__ for i in MAKER_GENRES]:
+            exec(f"print('['+{userInput}.property+']'+{userInput}.__doc__)")
+            prevInput = userInput
+            userInput = input("Please input this genre with the parameters as shown in the help menu.\n")
+            try:
+                assert prevInput in userInput, "Make sure the genre was spelled correctly and the parameters are correct."
+                exec(f"""
+if {userInput}.property in [i.property for i in userGenres]:
+    print("Cannot add genre of the same type.")
+else:
+        userGenres += [{userInput}]
+        print ('{userInput} added.')
+                """)
+            except Exception as report:
+                print("Error: "+report)
+                
+        if userInput[:4] == "help":
+            if userInput[4:] == "":
+                print("To see more info about a genre use 'help {genre name}'")
+            elif userInput[5:] in [i.__name__ for i in ALL_GENRES]:
+                exec(f"print('['+{userInput[5:]}.property+']'+{userInput[5:]}.__doc__)")
+        if userInput.lower() == "genres":
+            print("Your Genres: "+ str(userGenres))
+        if userInput.lower() == "genre list":
+            print(["["+ i.property + "]" + i.__name__ for i in ALL_GENRES])
+        userInput = input("\tPlease enter a valid genre from the list. Type 'genre list' to see the list of genres again. Type 'stop' to finish.\n")
+
+    userRegions = []
+    print("GENRES:", end = " ")
+    print( [i for i in REGIONS] )
+    userInput = input("\nGive region names from the list above. You can 'stop' without specifying anything to have random regions.'\n")
+    while userInput.lower() != 'stop' and len(userRegions) < 3:
+        if userInput in REGIONS:
+            userRegions += userInput
+                
+        if userInput.lower() == "regions":
+            print("Your Regions: "+ str(userRegions))
+        if userInput.lower() == "region list":
+            print([i for i in REGIONS])
+        userInput = input("\tPlease enter a valid region from the list. Type 'region list' to see the list of regions again. Type 'stop' to finish.\n")
+    
+    userInput = input("How many times would you like to try and generate your deck? (1-10 times)\n")
+    while True:
+        try:
+            if int(userInput) <= 10:
+                numPulls = int(userInput)
+                break
+            else:
+                raise ValueError
+        except:
+            userInput = input('Please specify a number 1-10.\n ')
+    userInput = input("\n Would you like to see the deck info? (y/n)\n  ")
+    if userInput[0].lower() == 'y':
+        userBool = True
+    else: userBool = False
+    userInput = 'y'
+    try:
+        while userInput[0] == 'y':
+            successRate = defaultdict(int)
+            for i in range(numPulls):
+                if len(userGenres) == 0:
+                    userGenres = randomGenreList(GENRES)
+                if basicCheck not in userGenres: userGenres.append(basicCheck)
+                if len(userRegions) == 0:
+                    userRegions.append(random.choice(REGIONS))
+                    userRegions.append(random.choice(REGIONS))
+                if len(userRegions) == 1:
+                    userRegions.append(random.choice(REGIONS))
+                userDeck = Deck(*userRegions, *userGenres)
+                if userDeck.fillDeck():
+                    if userBool:
+                        print() 
+                        userDeck.printDeckInfo()
+                    rCode = LoRDeck(userDeck.returnDeck())
+                    successRate["Success"] += 1
+                else:
+                    successRate["Failure"] += 1
+                del userDeck
+            print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
+            if ((successRate['Success']/(successRate['Success']+successRate['Failure']))*100) == 0 and numPulls >= 6:
+                print("\n\t This deck probably chose genres that are impossible to go together.")
+            userInput = input("\t Would you like to try again with the same genres? (y/n)\n")
+    except MemoryError:
+        print("Sorry that's too much.")
+        
 # with open("deckCodes.txt", "w") as outfile:
 #     print(os.path.dirname(os.path.abspath(__file__)))
 #     print(os.path.realpath(outfile.name))
