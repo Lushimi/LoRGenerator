@@ -4,13 +4,13 @@ from collections import defaultdict
 import inspect
 import random
 from lor_deckcodes import LoRDeck
-
-REGIONS = ["Freljord", "Demacia", "Ionia", "Noxus", "Piltover & Zaun", "Shadow Isles"]
-KEYWORDS = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain', 'Stun', 'Trap', 'Piltover & Zaun', 'Demacia', 'Shadow Isles', 'Overwhelm', 'Barrier', 'Capture', 'Frostbite', 'Burst', 'Fleeting', 'Fast', 'Overwhelm', 'Quick Attack', 'Tough', 'Recall', 'Ionia', 'Regeneration', 'Lifesteal', 'Enlightened', 'Slow', 'Noxus', 'Ephemeral', 'Freljord', 'Last Breath', 'Challenger', 'Imbue', 'Fearsome', "Can't Block", 'Neutral', 'Noxus', 'Demacia', 'Freljord', 'Shadow Isles', 'Ionia', 'Piltover & Zaun', 'Slow', 'Burst', 'Fast', 'Common', 'Rare', 'Epic', 'Champion', 'Discard', 'Nexus', 'Create', 'Summon', 'Buff', 'Burn', 'None']
-VOCAB = ['Strike', 'Allegiance', 'Support', 'Strongest', 'Play', 'Attack']
-SUBTYPES = ['', 'Spider', 'Yeti', 'Tech', 'Elite', 'Elnuk', 'Poro']
+import os.path
+from pathlib import Path
 
 class Deck:
+    """
+    A collection of cards and meta data about the collection of cards.
+    """
     def __init__(self, region: str, secondRegion: str, *genres: (lambda card, deck: Bool) ):
         assert region in REGIONS, "First region specified not found."
         assert secondRegion == None or secondRegion in REGIONS, "Second region specified not found."
@@ -102,8 +102,68 @@ class Deck:
                 rList.append( f"{count}:{card.cardCode}" )
         return rList
 
+    #     Add cards to specific regions or randomly assigns regions if none are specified, returns if it filled a valid deck or not (bool).
+    def fillDeck(self)-> bool:
+        try:
+            infinitePrevention = 0
+            while len(self) < 40:
+                card = random.choice(self.possibleCards)
+                self.addCard(card)
+                infinitePrevention += 1
+                assert infinitePrevention < 9999, "\n\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\t\t=+= COULD NOT CREATE A DECK WITH THE SPECIFIED CRITERIA. =+=\t\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            return True
+        except AssertionError as errorStatement:
+            print(errorStatement)
+            return False
+        
+    #     Add cards bypassing the genres.
+    def cardOverride(self, cardName:str, amount:int):
+        for card in self.possibleCards:
+            if (card.name == cardName or card.cardCode == cardName) and card.collectible:
+                addingCard = card
+                break
+        for i in range(amount):
+            self.addCard(addingCard, True)
+
+#     Outputs a bunch of print statements to test a deck
+    def printDeckInfo(self):
+#         Tests str, repr, len, and return self functions
+        print(repr(self))
+        print()
+        print(self)
+        print("Amount of Cards in Deck: " + str(len(self)))
+        print()
+#         Prints a count of keywords in card's keyword list
+        K = defaultdict(int)
+        for i in self:
+            for j in i.keywords:
+                K[j] += 1
+        print("Keywords: \n" + '\n'.join( ["    " + o + ": " + str(p) if len(K) != 0 else "None" for o,p in sorted(K.items())] ))
+        print("=======================||")
+#         Prints a count of keywords embedded in the card descriptions
+        dK = defaultdict(int)
+        for i in self:
+            for j in i.descriptionKeywords:
+                dK[j] += 1
+        print("Description Keywords: \n" + '\n'.join( ["    " + o + ": " + str(p) if len(dK) != 0 else "None" for o,p in sorted(dK.items())] ))
+        print("=======================||")
+#         Prints a count of vocab words embedded in the card descriptions   
+        dV = defaultdict(int)
+        for i in self:
+            for j in i.vocab:
+                dV[j] += 1
+        print("Vocab: \n" + '\n'.join( ["    " + o + ": " + str(p) if len(dV) != 0 else "None" for o,p in sorted(dV.items())] ))
+        print("=======================||") 
+#         Prints cost of cards in self
+        for k,v in sorted(self.cardCostCount.items()):
+            print(f"Cost {k}: {v}")
+        
+
 
 class Card:
+    """
+    Is a collection of all data a Legends of Runeterra card has.
+    """
     def __init__(self, db: dict):
         self.associatedCards = db["associatedCards"]
         self.associatedCardRefs = db["associatedCardRefs"]
@@ -159,6 +219,38 @@ class Card:
     
     def __str__(self) -> str:
         return self.name + ": " + self.cardCode
+
+# ///////////////////////////////////////////////  All GLOBAL CONSTANTS  \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+"""
+    A bunch of global variables to use in other functions.
+"""
+REGIONS = ["Freljord", "Demacia", "Ionia", "Noxus", "Piltover & Zaun", "Shadow Isles"]
+KEYWORDS = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain', 'Stun', 'Trap', 'Piltover & Zaun', 'Demacia', 'Shadow Isles', 'Overwhelm', 'Barrier', 'Capture', 'Frostbite', 'Burst', 'Fleeting', 'Fast', 'Overwhelm', 'Quick Attack', 'Tough', 'Recall', 'Ionia', 'Regeneration', 'Lifesteal', 'Enlightened', 'Slow', 'Noxus', 'Ephemeral', 'Freljord', 'Last Breath', 'Challenger', 'Imbue', 'Fearsome', "Can't Block", 'Neutral', 'Noxus', 'Demacia', 'Freljord', 'Shadow Isles', 'Ionia', 'Piltover & Zaun', 'Slow', 'Burst', 'Fast', 'Common', 'Rare', 'Epic', 'Champion', 'Discard', 'Nexus', 'Create', 'Summon', 'Buff', 'Burn', 'None']
+VOCAB = ['Strike', 'Allegiance', 'Support', 'Strongest', 'Play', 'Attack']
+SUBTYPES = ['', 'Spider', 'Yeti', 'Tech', 'Elite', 'Elnuk', 'Poro']
+#     Creates master deck of cards and a master DECK dictionary for each regions' cards.
+savepath = Path(os.getcwd()) / "set1-en_us.json"
+with open(savepath, encoding ="utf8") as cardset:
+    parsed = json.load(cardset)
+    DECKS = {}
+    for r in REGIONS:
+        DECKS[r] = []
+    for c in parsed:
+        temp = Card(c)
+        DECKS[temp.region] += [temp]
+    del temp
+    del parsed
+    masterDeck = [c for l in DECKS.values() for c in l]
+    
+    REGION_WORDS = defaultdict(dict)
+    for k,v in DECKS.items():
+        REGION_WORDS[k]["Keywords"] = set()
+        REGION_WORDS[k]["Subtypes"] = set()
+        REGION_WORDS[k]["Vocab"] = set()
+        for c in v:
+            REGION_WORDS[k]["Keywords"] |= set(c.keywords) | set(c.descriptionKeywords)
+            REGION_WORDS[k]["Subtypes"] |= {c.subtype} 
+            REGION_WORDS[k]["Vocab"] |= set(c.vocab)
 
 # Genre types (decorator functions).
 def basic(f):
@@ -272,7 +364,7 @@ def unitBias(card, deck)-> bool:
             return False
     return True
 
-#Soft bias towards keyword.
+#Keyword Bias Maker, Soft bias towards keyword.
 #Lower strength means higher bias; for example if the keyword was ephemeral, strength of 0 means all cards will be ephemeral.
 def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
     assert keyword in KEYWORDS, "Specified keyword not found."
@@ -325,7 +417,7 @@ def NKBM(keyword: str = random.choice(KEYWORDS), strength: int = 7):
             return False
     return keywordBias
 
-#Soft bias for vocab word.
+#Vocab Bias Maker, Soft bias for vocab word.
 #Lower strength means higher bias; for example if the keyword was "Play", strength of 0 means all cards will be "Play".
 def VBM(vocabWord: str = random.choice(VOCAB), strength: int = 3):
     assert vocabWord in VOCAB, "Specified vocab not found."
@@ -364,10 +456,10 @@ def NVBM(vocabWord: str = random.choice(VOCAB), strength: int = 7):
             return False
     return vocabBias
 
-#Soft bias towards cost.
+#Cost Bias Maker, Soft bias towards cost.
 #Allows cards lower than the card cost, but not higher
 #Lower strength means higher bias; for example if the cost was 5, strength of 0 means all cards will be 5-cost.
-def CBM(cost: str = random.choice([range(8)]), strength: int = 3):
+def CBM(cost: int = random.randint(1,8), strength: int = 3):
     assert cost >= 0 and cost < 12, "Cost is not valid."
     @cost_bias
     def costBias(card, deck)-> bool:
@@ -380,7 +472,7 @@ def CBM(cost: str = random.choice([range(8)]), strength: int = 3):
 #Stronger than CBM, hard bias.
 #Allows cards lower than the card cost, but not higher
 #Strength is the minimum number of cards from the cost you want in your deck.
-def NCBM(cost: str = random.choice([range(8)]), strength: int = 7):
+def NCBM(cost: int = random.randint(1,8), strength: int = 7):
     assert cost >= 0 and cost < 12, "Cost is not valid."
     @cost_bias
     def costBias(card, deck)-> bool:
@@ -403,56 +495,21 @@ def MIX(g1, g2):
         return False
     return mixedGenre
 
-GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM(), RBM(), spellBias, unitBias, VBM()]
-OTHER =[MIX(lambda x: x, lambda y: y), NKBM(), NVBM()]
+GENRES = [basicCheck, firstRegionBias, secondRegionBias, halfSplit, KBM(), RBM(), spellBias, unitBias, VBM(), CBM()]
+OTHER =[MIX(lambda x: x, lambda y: y), NKBM(), NVBM(), NCBM()]
+ALL_GENRES = GENRES + OTHER
 
-def randomGenreList(genres)-> list:
-    gCount = defaultdict(int)
-    gList = []
-#     TODO change this
-    for i in range(len(genres)):
-        randomGenre = random.choice(genres)
-        gCount[randomGenre.property] += 1
-        if gCount[randomGenre.property] <= 1:
-            gList.append(randomGenre)
-    return gList
-
-
-if __name__ == "__main__":
-#     Creates master deck of cards and a master DECK dictionary for each regions' cards.
-    with open("set1-en_us.json", encoding ="utf8") as cardset:
-        parsed = json.load(cardset)
-        DECKS = {}
-        for r in REGIONS:
-            DECKS[r] = []
-        for c in parsed:
-            temp = Card(c)
-            DECKS[temp.region] += [temp]
-        masterDeck = [c for l in DECKS.values() for c in l]    
-        
-        REGION_WORDS = defaultdict(dict)
-        for k,v in DECKS.items():
-            REGION_WORDS[k]["Keywords"] = set()
-            REGION_WORDS[k]["Subtypes"] = set()
-            REGION_WORDS[k]["Vocab"] = set()
-            for c in v:
-                REGION_WORDS[k]["Keywords"] |= set(c.keywords) | set(c.descriptionKeywords)
-                REGION_WORDS[k]["Subtypes"] |= {c.subtype} 
-                REGION_WORDS[k]["Vocab"] |= set(c.vocab)
-
-#     Add cards to specific regions or randomly assigns regions if none are specified, returns if it filled a valid deck or not (bool).
-    def fillDeck(deck: Deck)-> bool:
-        try:
-            infinitePrevention = 0
-            while len(deck) < 40:
-                card = random.choice(deck.possibleCards)
-                deck.addCard(card)
-                infinitePrevention += 1
-                assert infinitePrevention < 9999, "\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\t\t=+= COULD NOT CREATE A DECK WITH THE SPECIFIED CRITERIA. =+=\t\t!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-            return True
-        except AssertionError as errorStatement:
-            print(errorStatement)
-            return False
+if __name__ == '__main__':
+    def randomGenreList(genres)-> list:
+        gCount = defaultdict(int)
+        gList = []
+    #     TODO change this
+        for i in range(len(genres)):
+            randomGenre = random.choice(genres)
+            gCount[randomGenre.property] += 1
+            if gCount[randomGenre.property] <= 1:
+                gList.append(randomGenre)
+        return gList
 
 #     Creates a deck object from an unfinished deck code.
     def fromUnfinishedDeck(deckCode: str, genres:list = [basicCheck], regions = None):
@@ -472,109 +529,91 @@ if __name__ == "__main__":
         if regions == None: regions = tempRegion
         rDeck = Deck(*regions, *genres)
         for i in cards:
-            cardOverride(rDeck, i[1], i[0])
+            rDeck.cardOverride(i[1], i[0])
         return rDeck
-
-#     Add cards bypassing the genres.
-    def cardOverride(deck:Deck, cardName:str, amount:int):
-        for card in deck.possibleCards:
-            if (card.name == cardName or card.cardCode == cardName) and card.collectible:
-                addingCard = card
-                break
-        for i in range(amount):
-            deck.addCard(addingCard, True)
-
-#     Outputs a bunch of print statements to test a deck
-    def printDeckInfo(deck: Deck):
-#         Tests str, repr, len, and return deck functions
-        print(repr(deck))
-        print()
-        print(deck)
-        print("Amount of Cards in Deck: " + str(len(deck)))
-        print()
-#         Prints a count of keywords in card's keyword list
-        K = defaultdict(int)
-        for i in deck:
-            for j in i.keywords:
-                K[j] += 1
-        print("Keywords: \n" + '\n'.join( ["    " + o + ": " + str(p) if len(K) != 0 else "None" for o,p in sorted(K.items())] ))
-        print("=======================||")
-#         Prints a count of keywords embedded in the card descriptions
-        dK = defaultdict(int)
-        for i in deck:
-            for j in i.descriptionKeywords:
-                dK[j] += 1
-        print("Description Keywords: \n" + '\n'.join( ["    " + o + ": " + str(p) if len(dK) != 0 else "None" for o,p in sorted(dK.items())] ))
-        print("=======================||")
-#         Prints a count of vocab words embedded in the card descriptions   
-        dV = defaultdict(int)
-        for i in deck:
-            for j in i.vocab:
-                dV[j] += 1
-        print("Vocab: \n" + '\n'.join( ["    " + o + ": " + str(p) if len(dV) != 0 else "None" for o,p in sorted(dV.items())] ))
-        print("=======================||") 
-#         Prints cost of cards in deck
-        for k,v in sorted(deck.cardCostCount.items()):
-            print(f"Cost {k}: {v}")
-        print()
-        print(deck.returnDeck())
-        rCode = LoRDeck(deck.returnDeck())
-        print(rCode.encode())
-        
-    
         
 # TESTING LINES
     def testingScript(printBool: bool):
         success, failure = 0, 0
-        
+         
         if printBool: print("\n\t\t/+/=====================================================[ Specific Test (Shadow Isles/ Ionia) ]=====================================================\+\ \n")
 # Test a deck with specifications
         genres = [basicCheck, KBM("Ephemeral", 3), firstRegionBias]
         myDeck = Deck("Shadow Isles", "Ionia", *genres)
-        if fillDeck(myDeck):
-            if printBool: printDeckInfo(myDeck)
+        if myDeck.fillDeck():
+            if printBool: myDeck.printDeckInfo()
             success += 1
         else:
             failure += 1
+        print()
+        rCode = LoRDeck(myDeck.returnDeck())
+        print(rCode.encode())
+        del myDeck
         if printBool: print("\n\t\t/+/=====================================================[ Mix Test (Demacia, Freljord) ]=====================================================\+\ \n")     
 # Test the MIX genre
         genres = [basicCheck, MIX(CBM(4, 5), NKBM("Frostbite", 6))]
         myDeck = Deck("Freljord", "Freljord", *genres)  
-        cardOverride(myDeck, "She Who Wanders", 2)
-        cardOverride(myDeck, "Tryndamere", 2)
-        cardOverride(myDeck, "Braum", 2)
-        cardOverride(myDeck, "Ashe", 2)     
-        if fillDeck(myDeck):
-            if printBool: printDeckInfo(myDeck)
+        myDeck.cardOverride("She Who Wanders", 2)
+        myDeck.cardOverride("Tryndamere", 2)
+        myDeck.cardOverride("Braum", 2)
+        myDeck.cardOverride("Ashe", 2)     
+        if myDeck.fillDeck():
+            if printBool: myDeck.printDeckInfo()
             success += 1
         else:
             failure += 1
+        print()
+        rCode = LoRDeck(myDeck.returnDeck())
+        print(rCode.encode())
+        del myDeck
         if printBool: print("\n\t\t/+/=====================================================[ Partial Import Test (Shadow Isles, Ionia) ]=====================================================\+\ \n")     
 # Test a deck from an unfinished deck code
         genres = [basicCheck, CBM(4, 5)]
         myDeck = fromUnfinishedDeck("CEAQCAIFGUAQCAICBEAA", genres)  
-        if fillDeck(myDeck):
-            if printBool: printDeckInfo(myDeck)
+        if myDeck.fillDeck():
+            if printBool: myDeck.printDeckInfo()
             success += 1
         else:
             failure += 1
+        print()
+        rCode = LoRDeck(myDeck.returnDeck())
+        print(rCode.encode())
+        del myDeck
         if printBool: print("\n\t\t/+/=====================================================[ All Random Test ]=====================================================\+\ \n")
 # Test a deck with no specifications, filled in by randomness
         genres = randomGenreList(GENRES)
         if basicCheck not in genres: genres.append(basicCheck)
         randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
-        if fillDeck(randomDeck):
-            if printBool: printDeckInfo(randomDeck)
+        if randomDeck.fillDeck():
+            if printBool: randomDeck.printDeckInfo()
             success += 1
         else:
             failure += 1
-             
+        print()
+        rCode = LoRDeck(randomDeck.returnDeck())
+        print(rCode.encode())
+        del randomDeck
         return success, failure
 
-    successRate = defaultdict(int)
-    for tests in range(1):
-        k,v = testingScript(True)
-        successRate["Success"] += k
-        successRate["Failure"] += v
-    print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
+#     successRate = defaultdict(int)
+#     for tests in range(10):
+#         k,v = testingScript(True)
+#         successRate["Success"] += k
+#         successRate["Failure"] += v
+#     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
+    savepath = Path(os.getcwd()[:-7] + "/src/main/resources/") / "deckCodes.txt"
+    with open(os.path.join(os.path.expanduser('~'), savepath), "w") as outfile:
+        successRate = defaultdict(int)
+        genres = randomGenreList(GENRES)
+        for i in range(10):
+            if basicCheck not in genres: genres.append(basicCheck)
+            randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
+            if randomDeck.fillDeck():
+                rCode = LoRDeck(randomDeck.returnDeck())
+                outfile.write(rCode.encode() + "\n")
+                successRate["Success"] += 1
+            else:
+                successRate["Failure"] += 1
+            del randomDeck
+        print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
     
