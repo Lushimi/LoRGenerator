@@ -3,7 +3,10 @@ package com.studiogaffers.lorgenerator.deck;
 
 import org.python.util.PythonInterpreter;
 
+import javax.annotation.Resource;
+import javax.annotation.Resources;
 import java.io.*;
+import java.util.Scanner;
 
 public class DeckGenerator {
 
@@ -15,6 +18,7 @@ public class DeckGenerator {
             System.out.println(e.toString());
         }
 
+        Scanner scanner = new Scanner(Resource)
     }
 
 }
