@@ -595,24 +595,26 @@ if __name__ == '__main__':
         del randomDeck
         return success, failure
 
+    successRate = defaultdict(int)
+    for tests in range(1):
+        k,v = testingScript(False)
+        successRate["Success"] += k
+        successRate["Failure"] += v
+    print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
+# with open("deckCodes.txt", "w") as outfile:
+#     print(os.path.dirname(os.path.abspath(__file__)))
+#     print(os.path.realpath(outfile.name))
 #     successRate = defaultdict(int)
-#     for tests in range(10):
-#         k,v = testingScript(True)
-#         successRate["Success"] += k
-#         successRate["Failure"] += v
+#     genres = randomGenreList(GENRES)
+#     for i in range(10):
+#         if basicCheck not in genres: genres.append(basicCheck)
+#         randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
+#         if randomDeck.fillDeck():
+#             rCode = LoRDeck(randomDeck.returnDeck())
+#             outfile.write(rCode.encode() + "\n")
+#             successRate["Success"] += 1
+#         else:
+#             successRate["Failure"] += 1
+#         del randomDeck
 #     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
-with open("deckCodes.txt", "w") as outfile:
-        successRate = defaultdict(int)
-        genres = randomGenreList(GENRES)
-        for i in range(10):
-            if basicCheck not in genres: genres.append(basicCheck)
-            randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
-            if randomDeck.fillDeck():
-                rCode = LoRDeck(randomDeck.returnDeck())
-                outfile.write(rCode.encode() + "\n")
-                successRate["Success"] += 1
-            else:
-                successRate["Failure"] += 1
-            del randomDeck
-        print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
     
