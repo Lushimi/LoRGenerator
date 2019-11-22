@@ -57,7 +57,7 @@ public class DeckGenerator {
             if(resourceLoader != null) {
                 Resource resource = resourceLoader.getResource("classpath:deckCodes.txt");
                 System.out.println(resource.getURI());
-                return "Something here happened";
+                return resource.getURI().toString();
 //                InputStream is = resource.getInputStream();
 //                BufferedReader br = new BufferedReader(new InputStreamReader(is));
 //                StringBuilder out = new StringBuilder();
