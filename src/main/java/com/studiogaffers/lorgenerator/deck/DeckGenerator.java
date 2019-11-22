@@ -4,6 +4,7 @@ package com.studiogaffers.lorgenerator.deck;
 import com.studiogaffers.lorgenerator.LorgeneratorApplication;
 import com.studiogaffers.lorgenerator.util.StreamGobbler;
 import jnr.ffi.annotations.In;
+import org.python.apache.commons.compress.utils.IOUtils;
 import org.python.icu.util.Output;
 import org.python.util.PythonInterpreter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.Buffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -54,11 +56,16 @@ public class DeckGenerator {
 
             if(resourceLoader != null) {
                 Resource resource = resourceLoader.getResource("classpath:deckCodes.txt");
-                File f = resource.getFile();
-                Scanner scanner = new Scanner(f);
-                String res = scanner.nextLine();
-                System.out.println(res);
-                return res;
+                InputStream is = resource.getInputStream();
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                StringBuilder out = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    if(out.length() <= 0) out.append(line);
+                }
+                System.out.println(out.toString());
+                System.out.println("SOMETHING HAPPENED");
+                return out.toString();
             } else {
                 System.out.println("RESOURCE LOADER DOESNT EXIST");
                 return "ERROR: CHECK CONSOLE";
