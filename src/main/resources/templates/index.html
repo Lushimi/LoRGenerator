@@ -12,9 +12,13 @@
             <h3>by Studio Gaffers</h3>
         </div>
         <div id="body">
-            <p>Generate a random deck for the Legends of Runeterra card game.</p>
+            <p><b>Specify different genres and generate a random deck from those genres! Made for the Legends of Runeterra card game.</b></p>
+			<p>What's a genre? A genre is just something used to bias the randomness of the deck; for example, if I want a deck with many "ephemeral" cards, more cards in the first region, and low cost unit cards. The genres would be keywords, regions, cost, and type!</p><br><br>
+			<p>Import an unfinished deck and work from there, or create a whole deck from scratch!</p>
+			<br>
+			<p>The code supports both of those things and many different genres, but we don't know how to front end and accept user input so this will just randomly generate 10 decks with random genres.</p>
             <form action="#" th:action="@{/deck}" th:object="${deck}" method="post">
-                <input type="submit" value="Generate New Deck" />
+                <input type="submit" value="Generate 10 Random Decks" />
             </form>
 
         </div>

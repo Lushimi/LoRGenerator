@@ -139,21 +139,21 @@ class Deck:
             for j in i.keywords:
                 K[j] += 1
         print("Keywords: \n" + '\n'.join( ["    " + o + ": " + str(p) if len(K) != 0 else "None" for o,p in sorted(K.items())] ))
-        print("=======================||")
+        print("||=======================||")
 #         Prints a count of keywords embedded in the card descriptions
         dK = defaultdict(int)
         for i in self:
             for j in i.descriptionKeywords:
                 dK[j] += 1
         print("Description Keywords: \n" + '\n'.join( ["    " + o + ": " + str(p) if len(dK) != 0 else "None" for o,p in sorted(dK.items())] ))
-        print("=======================||")
+        print("||=======================||")
 #         Prints a count of vocab words embedded in the card descriptions   
         dV = defaultdict(int)
         for i in self:
             for j in i.vocab:
                 dV[j] += 1
         print("Vocab: \n" + '\n'.join( ["    " + o + ": " + str(p) if len(dV) != 0 else "None" for o,p in sorted(dV.items())] ))
-        print("=======================||") 
+        print("||=======================||") 
 #         Prints cost of cards in self
         for k,v in sorted(self.cardCostCount.items()):
             print(f"Cost {k}: {v}")
@@ -662,121 +662,124 @@ if __name__ == '__main__':
 #         successRate["Failure"] += v
 #     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.\n")
 #     
-    print("Genres are given in the form of: \n\t[property]GenreName\n")
-    print("GENRES:", end = " ")
-    print( ["["+ i.property + "]" + i.__name__ for i in ALL_GENRES] )
-    userGenres = []
-    userInput = input("\nGive genre names from the list above. You cannot specify two genres of the same property.\nYou can 'stop' without adding anything for random genres. To see more info about a genre, type 'help {genre name}'\n")
-    while userInput.lower() != 'stop':
-        
-        if userInput in [i.__name__ for i in SIMPLE_GENRES]:
-            exec(f"""
-if {userInput}.property in [i.property for i in userGenres]:
-    print("Cannot add genre of the same type.")
-else:
-    userGenres += [{userInput}]
-    print ('{userInput} added.')
-                """)
 
-        if userInput in [i.__name__ for i in MAKER_GENRES]:
-            exec(f"print('['+{userInput}.property+']'+{userInput}.__doc__)")
-            prevInput = userInput
-            userInput = input("Please input this genre with the parameters as shown in the help menu.\n")
-            try:
-                assert prevInput in userInput, "Make sure the genre was spelled correctly and the parameters are correct."
-                exec(f"""
-if {userInput}.property in [i.property for i in userGenres]:
-    print("Cannot add genre of the same type.")
-else:
-        userGenres += [{userInput}]
-        print ('{userInput} added.')
-                """)
-            except Exception as report:
-                print("Error: "+report)
-                
-        if userInput[:4] == "help":
-            if userInput[4:] == "":
-                print("To see more info about a genre use 'help {genre name}'")
-            elif userInput[5:] in [i.__name__ for i in ALL_GENRES]:
-                exec(f"print('['+{userInput[5:]}.property+']'+{userInput[5:]}.__doc__)")
-        if userInput.lower() == "genres":
-            print("Your Genres: "+ str(userGenres))
-        if userInput.lower() == "genre list":
-            print(["["+ i.property + "]" + i.__name__ for i in ALL_GENRES])
-        userInput = input("\tPlease enter a valid genre from the list. Type 'genre list' to see the list of genres again. Type 'stop' to finish.\n")
+"""THIS SCRIPT WORKS BUT NEEDS INPUT"""
+#     print("Genres are given in the form of: \n\t[property]GenreName\n")
+#     print("GENRES:", end = " ")
+#     print( ["["+ i.property + "]" + i.__name__ for i in ALL_GENRES] )
+#     userGenres = []
+#     userInput = input("\nGive genre names from the list above. You cannot specify two genres of the same property.\nYou can 'stop' without adding anything for random genres. To see more info about a genre, type 'help {genre name}'\n")
+#     while userInput.lower() != 'stop':
+#         
+#         if userInput in [i.__name__ for i in SIMPLE_GENRES]:
+#             exec(f"""
+# if {userInput}.property in [i.property for i in userGenres]:
+#     print("Cannot add genre of the same type.")
+# else:
+#     userGenres += [{userInput}]
+#     print ('{userInput} added.')
+#                 """)
+# 
+#         if userInput in [i.__name__ for i in MAKER_GENRES]:
+#             exec(f"print('['+{userInput}.property+']'+{userInput}.__doc__)")
+#             prevInput = userInput
+#             userInput = input("Please input this genre with the parameters as shown in the help menu.\n")
+#             try:
+#                 assert prevInput in userInput, "Make sure the genre was spelled correctly and the parameters are correct."
+#                 exec(f"""
+# if {userInput}.property in [i.property for i in userGenres]:
+#     print("Cannot add genre of the same type.")
+# else:
+#         userGenres += [{userInput}]
+#         print ('{userInput} added.')
+#                 """)
+#             except Exception as report:
+#                 print("Error: "+report)
+#                 
+#         if userInput[:4] == "help":
+#             if userInput[4:] == "":
+#                 print("To see more info about a genre use 'help {genre name}'")
+#             elif userInput[5:] in [i.__name__ for i in ALL_GENRES]:
+#                 exec(f"print('['+{userInput[5:]}.property+']'+{userInput[5:]}.__doc__)")
+#         if userInput.lower() == "genres":
+#             print("Your Genres: "+ str(userGenres))
+#         if userInput.lower() == "genre list":
+#             print(["["+ i.property + "]" + i.__name__ for i in ALL_GENRES])
+#         userInput = input("\tPlease enter a valid genre from the list. Type 'genre list' to see the list of genres again. Type 'stop' to finish.\n")
+# 
+#     userRegions = []
+#     print("GENRES:", end = " ")
+#     print( [i for i in REGIONS] )
+#     userInput = input("\nGive region names from the list above. You can 'stop' without specifying anything to have random regions.'\n")
+#     while userInput.lower() != 'stop' and len(userRegions) < 3:
+#         if userInput in REGIONS:
+#             userRegions += userInput
+#                 
+#         if userInput.lower() == "regions":
+#             print("Your Regions: "+ str(userRegions))
+#         if userInput.lower() == "region list":
+#             print([i for i in REGIONS])
+#         userInput = input("\tPlease enter a valid region from the list. Type 'region list' to see the list of regions again. Type 'stop' to finish.\n")
+#     
+#     userInput = input("How many times would you like to try and generate your deck? (1-10 times)\n")
+#     while True:
+#         try:
+#             if int(userInput) <= 10:
+#                 numPulls = int(userInput)
+#                 break
+#             else:
+#                 raise ValueError
+#         except:
+#             userInput = input('Please specify a number 1-10.\n ')
+#     userInput = input("\n Would you like to see the deck info? (y/n)\n  ")
+#     if userInput[0].lower() == 'y':
+#         userBool = True
+#     else: userBool = False
+#     userInput = 'y'
+#     try:
+#         while userInput[0] == 'y':
+#             successRate = defaultdict(int)
+#             for i in range(numPulls):
+#                 if len(userGenres) == 0:
+#                     userGenres = randomGenreList(GENRES)
+#                 if basicCheck not in userGenres: userGenres.append(basicCheck)
+#                 if len(userRegions) == 0:
+#                     userRegions.append(random.choice(REGIONS))
+#                     userRegions.append(random.choice(REGIONS))
+#                 if len(userRegions) == 1:
+#                     userRegions.append(random.choice(REGIONS))
+#                 userDeck = Deck(*userRegions, *userGenres)
+#                 if userDeck.fillDeck():
+#                     if userBool:
+#                         print() 
+#                         userDeck.printDeckInfo()
+#                     rCode = LoRDeck(userDeck.returnDeck())
+#                     successRate["Success"] += 1
+#                 else:
+#                     successRate["Failure"] += 1
+#                 del userDeck
+#             print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
+#             if ((successRate['Success']/(successRate['Success']+successRate['Failure']))*100) == 0 and numPulls >= 6:
+#                 print("\n\t This deck probably chose genres that are impossible to go together.")
+#             userInput = input("\t Would you like to try again with the same genres? (y/n)\n")
+#     except MemoryError:
+#         print("Sorry that's too much.")
 
-    userRegions = []
-    print("GENRES:", end = " ")
-    print( [i for i in REGIONS] )
-    userInput = input("\nGive region names from the list above. You can 'stop' without specifying anything to have random regions.'\n")
-    while userInput.lower() != 'stop' and len(userRegions) < 3:
-        if userInput in REGIONS:
-            userRegions += userInput
-                
-        if userInput.lower() == "regions":
-            print("Your Regions: "+ str(userRegions))
-        if userInput.lower() == "region list":
-            print([i for i in REGIONS])
-        userInput = input("\tPlease enter a valid region from the list. Type 'region list' to see the list of regions again. Type 'stop' to finish.\n")
-    
-    userInput = input("How many times would you like to try and generate your deck? (1-10 times)\n")
-    while True:
-        try:
-            if int(userInput) <= 10:
-                numPulls = int(userInput)
-                break
-            else:
-                raise ValueError
-        except:
-            userInput = input('Please specify a number 1-10.\n ')
-    userInput = input("\n Would you like to see the deck info? (y/n)\n  ")
-    if userInput[0].lower() == 'y':
-        userBool = True
-    else: userBool = False
-    userInput = 'y'
-    try:
-        while userInput[0] == 'y':
-            successRate = defaultdict(int)
-            for i in range(numPulls):
-                if len(userGenres) == 0:
-                    userGenres = randomGenreList(GENRES)
-                if basicCheck not in userGenres: userGenres.append(basicCheck)
-                if len(userRegions) == 0:
-                    userRegions.append(random.choice(REGIONS))
-                    userRegions.append(random.choice(REGIONS))
-                if len(userRegions) == 1:
-                    userRegions.append(random.choice(REGIONS))
-                userDeck = Deck(*userRegions, *userGenres)
-                if userDeck.fillDeck():
-                    if userBool:
-                        print() 
-                        userDeck.printDeckInfo()
-                    rCode = LoRDeck(userDeck.returnDeck())
-                    successRate["Success"] += 1
-                else:
-                    successRate["Failure"] += 1
-                del userDeck
-            print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
-            if ((successRate['Success']/(successRate['Success']+successRate['Failure']))*100) == 0 and numPulls >= 6:
-                print("\n\t This deck probably chose genres that are impossible to go together.")
-            userInput = input("\t Would you like to try again with the same genres? (y/n)\n")
-    except MemoryError:
-        print("Sorry that's too much.")
         
-# with open("deckCodes.txt", "w") as outfile:
-#     print(os.path.dirname(os.path.abspath(__file__)))
-#     print(os.path.realpath(outfile.name))
-#     successRate = defaultdict(int)
-#     genres = randomGenreList(GENRES)
-#     for i in range(10):
-#         if basicCheck not in genres: genres.append(basicCheck)
-#         randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
-#         if randomDeck.fillDeck():
-#             rCode = LoRDeck(randomDeck.returnDeck())
-#             outfile.write(rCode.encode() + "\n")
-#             successRate["Success"] += 1
-#         else:
-#             successRate["Failure"] += 1
-#         del randomDeck
-#     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
+with open("deckCodes.txt", "w") as outfile:
+    successRate = defaultdict(int)
+    genres = randomGenreList(GENRES)
+    for i in range(10):
+        print(f"\n DECK {i+1}\n")
+        if basicCheck not in genres: genres.append(basicCheck)
+        randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
+        if randomDeck.fillDeck():
+            randomDeck.printDeckInfo()
+            rCode = LoRDeck(randomDeck.returnDeck())
+            outfile.write(rCode.encode() + "\n")
+            successRate["Success"] += 1
+        else:
+            successRate["Failure"] += 1
+        del randomDeck
+    print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
     
