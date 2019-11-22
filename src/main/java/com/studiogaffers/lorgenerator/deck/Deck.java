@@ -25,12 +25,8 @@ public class Deck {
         return deckCode;
     }
 
-    public void generateRandomDeck() {
-        try {
-            this.deckCode = DeckGenerator.generateDeck();
-        } catch (Exception e) {
-            System.out.println(e.toString());
-            System.out.println(e.getMessage());
-        }
+    public String generateRandomDeck() {
+        deckCode = DeckGenerator.generateDeck();
+        return deckCode;
     }
 }
