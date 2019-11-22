@@ -112,7 +112,7 @@ def unitBias(card, deck)-> bool:
             return False
     return True
 
-#Soft bias towards keyword.
+#Keyword Bias Maker, Soft bias towards keyword.
 #Lower strength means higher bias; for example if the keyword was ephemeral, strength of 0 means all cards will be ephemeral.
 def KBM(keyword: str = random.choice(KEYWORDS), strength: int = 3):
     assert keyword in KEYWORDS, "Specified keyword not found."
@@ -165,7 +165,7 @@ def NKBM(keyword: str = random.choice(KEYWORDS), strength: int = 7):
             return False
     return keywordBias
 
-#Soft bias for vocab word.
+#Vocab Bias Maker, Soft bias for vocab word.
 #Lower strength means higher bias; for example if the keyword was "Play", strength of 0 means all cards will be "Play".
 def VBM(vocabWord: str = random.choice(VOCAB), strength: int = 3):
     assert vocabWord in VOCAB, "Specified vocab not found."
@@ -204,7 +204,7 @@ def NVBM(vocabWord: str = random.choice(VOCAB), strength: int = 7):
             return False
     return vocabBias
 
-#Soft bias towards cost.
+#Cost Bias Maker, Soft bias towards cost.
 #Allows cards lower than the card cost, but not higher
 #Lower strength means higher bias; for example if the cost was 5, strength of 0 means all cards will be 5-cost.
 def CBM(cost: int = random.randint(1,8), strength: int = 3):

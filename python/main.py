@@ -1,5 +1,6 @@
 from lor_deckcodes import LoRDeck
 import os.path
+from pathlib import Path
 from genres import *
 
 if __name__ == '__main__':
@@ -104,8 +105,8 @@ if __name__ == '__main__':
 #         successRate["Success"] += k
 #         successRate["Failure"] += v
 #     print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
-    savepath = os.getcwd()[:-7] + "\\src\\main\\resources\\"
-    with open(os.path.join(os.path.expanduser('~'), savepath, "deckCodes.txt"), "w") as outfile:
+    savepath = Path(os.getcwd()[:-7] + "/src/main/resources/") / "deckCodes.txt"
+    with open(os.path.join(os.path.expanduser('~'), savepath), "w") as outfile:
         successRate = defaultdict(int)
         genres = randomGenreList(GENRES)
         for i in range(10):
@@ -113,7 +114,7 @@ if __name__ == '__main__':
             randomDeck = Deck(random.choice(REGIONS), random.choice(REGIONS), *genres)
             if randomDeck.fillDeck():
                 rCode = LoRDeck(randomDeck.returnDeck())
-                outfile.write(rCode.encode())
+                outfile.write(rCode.encode() + "\n")
                 successRate["Success"] += 1
             else:
                 successRate["Failure"] += 1
