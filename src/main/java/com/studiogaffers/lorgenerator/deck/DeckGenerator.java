@@ -55,8 +55,9 @@ public class DeckGenerator {
             System.out.println("ExitValue: " + exitVal);
 
             if(resourceLoader != null) {
-                Resource resource = resourceLoader.getResource("classpath:deckCodes.txt");
+                Resource resource = resourceLoader.getResource("deckCodes.txt");
                 System.out.println(resource.getURI());
+                System.out.println("testing");
                 InputStream is = resource.getInputStream();
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 StringBuilder out = new StringBuilder();
