@@ -118,6 +118,6 @@ if __name__ == '__main__':
                 successRate["Success"] += 1
             else:
                 successRate["Failure"] += 1
+            del randomDeck
         print(f"\nTesting finished with a { (successRate['Success']/(successRate['Success']+successRate['Failure']))*100 }% Success rate.")
-        del randomDeck
     

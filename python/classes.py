@@ -3,6 +3,8 @@ import re
 import json
 import random
 from collections import defaultdict
+import os.path
+from pathlib import Path
 
 class Deck:
     """
@@ -226,7 +228,8 @@ KEYWORDS = ['Obliterate', 'Skill', 'Double Attack', 'Weakest', 'Elusive', 'Drain
 VOCAB = ['Strike', 'Allegiance', 'Support', 'Strongest', 'Play', 'Attack']
 SUBTYPES = ['', 'Spider', 'Yeti', 'Tech', 'Elite', 'Elnuk', 'Poro']
 #     Creates master deck of cards and a master DECK dictionary for each regions' cards.
-with open("set1-en_us.json", encoding ="utf8") as cardset:
+savepath = Path(os.getcwd()) / "set1-en_us.json"
+with open(savepath, encoding ="utf8") as cardset:
     parsed = json.load(cardset)
     DECKS = {}
     for r in REGIONS:
