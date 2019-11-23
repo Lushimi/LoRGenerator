@@ -776,7 +776,7 @@ with open("deckCodes.txt", "w") as outfile:
         if randomDeck.fillDeck():
             randomDeck.printDeckInfo()
             rCode = LoRDeck(randomDeck.returnDeck())
-            outfile.write(rCode.encode() + "\n")
+            print(rCode.encode() + "\n")
             successRate["Success"] += 1
         else:
             successRate["Failure"] += 1
